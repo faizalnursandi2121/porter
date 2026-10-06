@@ -134,7 +134,7 @@ Ketentuan copy status:
 
 - Format tidak didukung: `Format berkas tidak didukung. Gunakan JPG, PNG, WebP, HEIC/HEIF, atau PDF.` PDF tidak ditawarkan untuk selfie dan mutasi inventaris.
 - Ukuran melebihi batas: `Ukuran berkas melebihi batas 10 MB. Kompres atau ganti berkas.` Validasi ukuran/format dilakukan client sebelum upload agar feedback cepat, tetapi keputusan akhir tetap di server.
-- Kuota evidence terlampaui: `Maksimal 5 lampiran pada bagian ini` atau `Maksimal 10 lampiran pada satu Daily Report`.
+- Batas jumlah lampiran terlampaui: `Maksimal 5 lampiran pada bagian ini` atau `Maksimal 10 lampiran pada satu Daily Report`.
 
 ### 4.5 Confirmation dan destructive action
 
@@ -192,7 +192,6 @@ Daily Report
 Inventaris Site
 - Aset (termasuk registrasi aset baru dari gudang)
 - Material & Sparepart
-- Mutasi Stok
 - Inventory Finding
 
 Profil
@@ -225,22 +224,17 @@ Master Data
 - Kategori Aset
 - Katalog Material/Sparepart
 
-Analitik
-- Kehadiran
-- Laporan
-- Inventaris
-```
 
 ### 5.3 Manager workspace
 
 ```text
-Dashboard Eksekutif
+Dashboard Eksekutif (KPI lintas-site + shortcut analitik)
 Kehadiran & Kepatuhan
 Daily Report
 Inventaris
 Inventory Findings
-Analitik
-Master Checklist (read-only)
+Analitik (Kehadiran, Laporan, Inventaris, Temuan)
+Master Checklist (lihat versi + usulan perubahan draft; publish hanya Super Admin)
 Ekspor (Excel/PDF/CSV + preset)
 ```
 
@@ -250,6 +244,7 @@ Ekspor (Excel/PDF/CSV + preset)
 Dashboard Kehadiran
 Bukti Kehadiran Harian
 Riwayat EOS
+Ekspor Kehadiran (Excel/PDF/CSV + preset, sesuai otorisasi HR)
 ```
 
 ### 5.5 Super Admin workspace
@@ -261,7 +256,7 @@ Site
 Penugasan EOS
 Master Data (termasuk Checklist: publish version)
 Audit Log
-Storage & Kuota
+Storage Usage
 Konfigurasi Sistem
 ```
 
@@ -406,7 +401,7 @@ Evidence Section Router & Firewall: **wajib**, minimal 1 dari maksimal 5 attachm
 
 - Status Monitoring AP.
 - Jumlah AP Offline (0–10.000), dengan nilai `0` sebagai input valid.
-- Dokumentasi AP di Cloud: status, lampiran evidence wajib, serta catatan wajib untuk `BELUM_LENGKAP` atau `ADA_KENDALA`.
+- Dokumentasi AP di Cloud: lampiran evidence wajib (minimal 1 attachment `AVAILABLE`); tidak ada enum status tambahan.
 
 Untuk item Dokumentasi AP di Cloud, tampilkan status upload dan preview file sebelum report dapat berstatus siap submit. Rules inline: `NORMAL` mengharuskan AP offline = 0; `WARNING`/`DOWN` mengharuskan AP offline >= 1; `UNKNOWN` wajib note alasan dan count boleh kosong.
 
@@ -589,17 +584,21 @@ Inventaris Site → Aset → Registrasi Aset
 
 Pesan validasi server untuk asset tag ganda/format salah ditampilkan inline pada field terkait.
 
-#### Mutasi stok material/sparepart
+#### Mutasi stok (Supervisor/Super Admin)
 
-EOS dapat melakukan mutasi stok untuk item material/sparepart pada site assignment aktif:
+EOS tidak melakukan mutasi stok. Mutasi stok material/sparepart dipost oleh **Supervisor (site scope) atau Super Admin** (FR-14; route `supervisor.inventory.transactions.store`); EOS hanya melihat saldo dan riwayat mutasi site-nya. Bila stok perlu dikoreksi, EOS membuat **Inventory Finding** yang merekomendasikan mutasi, dan Supervisor memutuskan mutasi yang sah.
+
+Alur mutasi (Supervisor/Super Admin):
 
 ```text
-Inventaris Site → Material & Sparepart → Mutasi
-→ pilih item dan tipe mutasi (RECEIPT/USAGE/ADJUSTMENT/DAMAGED/LOST/RETURN/TRANSFER_IN/TRANSFER_OUT)
+Inventaris (scope) → Material & Sparepart → Mutasi
+→ pilih site dalam scope, item, dan tipe mutasi (RECEIPT/USAGE/ADJUSTMENT/DAMAGED/LOST/RETURN/TRANSFER_IN/TRANSFER_OUT)
 → input quantity dengan preview saldo sebelum/sesudah
-→ alasan wajib; foto bila barang rusak/hilang (maks 5 lampiran)
+→ catatan wajib hanya untuk ADJUSTMENT/DAMAGED/LOST/TRANSFER_IN/TRANSFER_OUT; lampiran opsional (maks 5)
 → submit → saldo diperbarui atomik; saldo tidak boleh negatif (divalidasi server)
 ```
+
+Jika temuan mengarah pada koreksi stok, EOS hanya membuat finding (lihat di bawah); tidak ada jalur mutasi bagi EOS.
 
 #### Membuat Inventory Finding
 
@@ -624,6 +623,7 @@ Aset hilang
 Aset tidak sesuai data
 Material/sparepart kurang
 Material/sparepart rusak
+Aset perlu registrasi (barang gudang belum teregistrasi)
 Lainnya
 ```
 
@@ -639,7 +639,6 @@ Komponen:
 - Klik badge membuka Notification Center: daftar kronologis (terbaru di atas) dengan tipe, teks singkat, waktu relative (`2 jam lalu`), dan tautan `Lihat` menuju record terkait.
   - Report reopened → Daily Report terkait (langsung ke state perbaiki & kirim ulang, lihat 6.1).
   - Attachment rejected → Daily Report bagian Evidence Section terkait.
-  - Export selesai → halaman/hasil export terkait (backoffice).
 - Badge diperbarui dari prop halaman Inertia / polling ringan; tidak ada push real-time di MVP. UI tidak menghitung/menyimpan nilai ini secara lokal.
 - Tindakan: `Tandai dibaca` per item dan `Tandai semua dibaca` (idempotent).
 - Empty state: `Belum ada notifikasi`.
@@ -751,11 +750,11 @@ Super Admin mengelola user, role, site, assignment, checklist, dan audit log. Fo
 
 #### Storage usage (Super Admin)
 
-Halaman `Storage & Kuota` (screen A-06, halaman `/admin/storage-usage`) menampilkan daftar site beserta penggunaan penyimpanan attachment (byte human-readable), persentase pemakaian, dan status per baris. Detail per site menampilkan tren penggunaan ringkas dan jumlah attachment.
+Halaman `Storage Usage` (screen A-06, halaman `/admin/storage-usage`) menampilkan daftar site beserta penggunaan penyimpanan attachment (byte human-readable) dan persentase pemakaian disk global. Detail per site menampilkan tren penggunaan ringkas dan jumlah attachment. Tidak ada kuota per site; alert kesehatan disk bersifat global dan dipantau melalui structured log dan health endpoint, bukan kuota/alert per site di UI.
 
-#### Export Excel/PDF/CSV dengan preset (Super Admin/Manager)
+#### Export Excel/PDF/CSV dengan preset (Super Admin/Manager/Supervisor/HR)
 
-Export tersedia dari halaman data backoffice sesuai permission:
+Export tersedia dari halaman data backoffice sesuai permission dan scope (Supervisor: site scope; HR: data kehadiran sesuai otorisasi; PRD matriks kapabilitas — Export):
 
 - Pilih format: **Excel (xlsx styled)** (header bold, border, lebar kolom auto, judul + periode di header, filename dinamis), **PDF formal** (header instansi, siap cetak), atau **CSV** (data mentah).
 - Kustomisasi: **pilih kolom via checkbox per kolom**, filter periode/site/status/EOS.
@@ -790,7 +789,7 @@ Form assignment memperlihatkan EOS, site, tanggal mulai, status, dan assignment 
 
 Pengelola checklist melihat template version (1 template global `DAILY_SITE_REPORT`), status (DRAFT/PUBLISHED/SUPERSEDED/RETIRED), section, item, tipe input, satuan, required rule, catatan kondisional, lampiran wajib, serta preview form EOS.
 
-Hak akses per role: Super Admin mengelola penuh (create version `DRAFT`, edit, dan publish; published immutable); Supervisor dapat melihat versi published serta membuat/usulkan perubahan pada version `DRAFT` (usulan menjadi input untuk Super Admin); Manager hanya melihat (read-only) versi dan histori. Tombol publish hanya muncul untuk Super Admin.
+Hak akses per role: Super Admin mengelola penuh (create version `DRAFT`, edit, dan publish; published immutable); Supervisor dan Manager dapat melihat versi published serta membuat/mengedit/usulkan perubahan pada version `DRAFT` (FR-10; usulan menjadi input untuk Super Admin); publish hanya oleh Super Admin. Tombol publish hanya muncul untuk Super Admin.
 
 Perubahan template aktif tidak mengubah Daily Report lama (report menyimpan snapshot). UX menjelaskan versioning dengan jelas.
 
@@ -854,7 +853,7 @@ E-18 Clock-out blocked states (report gate, tanggal berganti, belum check-in)
 E-19 Clock-out success
 E-20 Riwayat kehadiran dan detail
 E-21 Registrasi aset (EOS; asset tag + SN gudang + foto wajib)
-E-22 Mutasi stok material/sparepart (EOS)
+E-22 Mutasi stok material/sparepart (Supervisor scope; route supervisor.inventory.transactions.store)
 E-23 Inventaris site: aset
 E-24 Inventaris site: material/sparepart
 E-25 Inventory Finding list
@@ -884,8 +883,8 @@ S-11 Assignment EOS
 S-12 Checklist template list/version
 S-13 Checklist template editor/preview (usulan draft; publish Super Admin)
 S-14 Asset category dan catalog material
-S-15 Analitik kehadiran/report/inventory
-S-16 Panel export: pilih kolom + filter + preset + format (Excel/PDF/CSV)
+S-15 Panel export: pilih kolom + filter + preset + format (Excel/PDF/CSV; site scope)
+S-16 Mutasi stok material/sparepart (Supervisor scope)
 ```
 
 ### 9.4 Manager, HR, dan Super Admin
@@ -895,11 +894,11 @@ M-01 Dashboard Eksekutif
 M-02 Kehadiran dan drill-down
 M-03 Analitik Daily Report dan drill-down
 M-04 Analitik inventaris/finding
-M-05 Panel export (pilih kolom + preset + format)
+M-05 Panel export (pilih kolom + preset + format; lintas-site ringkasan scope)
 H-01 Dashboard HR
 H-02 Bukti kehadiran harian
 H-03 Riwayat EOS
-A-01 User management
+H-04 Panel export kehadiran (sesuai otorisasi HR)
 A-02 Role assignment
 A-03 Audit log list/filter
 A-04 Audit log detail

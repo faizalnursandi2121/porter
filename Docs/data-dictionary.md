@@ -57,7 +57,6 @@ Perubahan timezone site (dan koordinat) memerlukan reason dan event `activity_lo
 | `*_at` (timestamptz) | Waktu event yang disimpan/ditetapkan server | Backend/PostgreSQL | UTC; sumber audit utama |
 | `*_local` | Representasi waktu event pada timezone site | Backend derived | Dibentuk dari UTC + `site_timezone`; selalu sertakan timezone/offset saat render UI |
 | `work_date_local` | Tanggal operasional berdasarkan timestamp server dan timezone site | Backend derived | Tidak mengambil tanggal dari device; dipakai attendance/report/filter operasional |
-| `location_captured_at` | Timestamp ketika posisi didapat perangkat | Client evidence | Bukan waktu resmi absensi; diperiksa freshness terhadap server time dengan toleransi longgar (bukan gerbang penolakan) |
 
 Timestamp server tetap lengkap UTC untuk audit. Tidak ada lagi aturan presisi menit/keterlambatan: absensi hanya bukti kehadiran, disiplin kehadiran ditangani absensi vendor EOS.
 
@@ -69,7 +68,7 @@ Timestamp server tetap lengkap UTC untuk audit. Tidak ada lagi aturan presisi me
 |---|---|---|---|---|---|
 | `users.id` | Identitas internal pengguna | PostgreSQL | System | UUID immutable | Internal Restricted; sesuai lifecycle user |
 | `employee_code` | Kode pegawai/petugas yang dapat dipakai login | PostgreSQL | Super Admin | Unique bila tidak null; format perusahaan | Sensitive Operational |
-| `full_name` | Nama tampilan/legal internal pengguna | PostgreSQL | Super Admin | 1–200 karakter | Sensitive Personal |
+| `name` | Nama tampilan/legal internal pengguna (kolom `name` standar starter kit Eloquent) | PostgreSQL | Super Admin | 1–200 karakter | Sensitive Personal |
 | `email` | Email login/komunikasi | PostgreSQL | Super Admin/user via controlled flow | Unique, normalized, valid email | Sensitive Personal |
 | `phone` | Nomor telepon opsional | PostgreSQL | Authorized admin | Format E.164/format policy | Sensitive Personal |
 | `password` | Hash Argon2id password | PostgreSQL | Identity service only | Plaintext 12–128 karakter saat input; tidak pernah plaintext/log/response | Highly Sensitive |
@@ -189,7 +188,6 @@ Unique: `(user_id, site_id, work_date_local)` — satu record per EOS + site + t
 | `check_in_latitude` | Latitude posisi perangkat | Client evidence | -90..90; diambil SEKALI dengan toleransi longgar | Sensitive Personal |
 | `check_in_longitude` | Longitude posisi perangkat | Client evidence | -180..180 | Sensitive Personal |
 | `check_in_accuracy_meters` | Estimasi accuracy posisi | Client evidence | Nullable; informasi, bukan gerbang | Sensitive Operational |
-| `check_in_location_captured_at` | Waktu lokasi diperoleh device | Client evidence | Nullable; not authoritative; freshness longgar | Sensitive Operational |
 | `check_in_distance_meters` | Jarak Haversine ke titik site, dihitung backend PHP | Backend | >= 0; DISIMPAN SEBAGAI INFORMASI — tidak ada penolakan radius, tidak ada borderline flag, tidak ada geofence status | Sensitive Operational |
 | `check_in_selfie_attachment_id` | Evidence selfie check-in | Attachment module | FK attachment status `AVAILABLE`; maksimum satu | Sensitive Personal |
 
@@ -197,7 +195,7 @@ GPS diambil sekali per aksi dengan toleransi longgar; deteksi wajah pada UI bers
 
 ### 5.3 Clock-out evidence fields
 
-`check_out_at`, `check_out_latitude`, `check_out_longitude`, `check_out_accuracy_meters`, `check_out_location_captured_at`, `check_out_distance_meters`, `check_out_selfie_attachment_id` — makna sama dengan pasangan check-in untuk event clock-out.
+`check_out_at`, `check_out_latitude`, `check_out_longitude`, `check_out_accuracy_meters`, `check_out_distance_meters`, `check_out_selfie_attachment_id` — makna sama dengan pasangan check-in untuk event clock-out.
 
 **Gate clock-out** (satu-satunya gate domain): clock-out hanya valid bila record berstatus `CHECKED_IN`, Daily Report tanggal `work_date_local` yang sama berstatus `SUBMITTED`, dan seluruh required evidence report `AVAILABLE`. Bila report belum lengkap, alur mengarahkan EOS melengkapi report terlebih dahulu (flow kontinu, bukan penolakan permanen).
 
@@ -211,14 +209,14 @@ Selfie check-in dan clock-out tidak lewat `attachment_links` — relasi selfie a
 |---|---|---|---|---|
 | `daily_reports.id` | ID internal report | PostgreSQL | UUID immutable | Internal Restricted; 2 tahun |
 | `report_number` | Nomor resmi report | Backend/PostgreSQL | Nullable pada draft; dialokasikan atomik HANYA saat submit sukses; format `CMX.WR.YYYYMM.SEQUENCE`; unique; tidak berubah saat reopen/resubmit | Internal Restricted |
-| `report_sequence` | Nilai sequence global | PostgreSQL SEQUENCE (bigint) | Monotonic, unique, tidak reset; dialokasikan dalam transaction submit | Internal Restricted |
 | `eos_user_id` | Pemilik/pengirim report | Session/assignment | EOS tidak memilih user lain | Sensitive Operational |
 | `site_id` | Site report | Assignment aktif | Tidak dipilih bebas client EOS | Internal Restricted |
+| `assignment_id` | Snapshot penugasan saat submit | Backend | FK `eos_site_assignments` | Internal Restricted |
+| `attendance_id` | Attendance yang mendasari report | Backend | FK `attendance_records`; unique — satu report per attendance | Internal Restricted |
 | `work_date_local` | Tanggal laporan operasional | Backend derived | Server time + `site_timezone` | Internal |
 | `site_timezone` | Snapshot timezone site | Backend | IANA valid | Internal |
-| `checklist_version_id` | Version checklist yang digunakan | Backend | FK `checklist_versions` status `PUBLISHED`; snapshot saat draft dibuat | Internal |
-| `snapshot` | Snapshot JSONB: definisi checklist + site + EOS + network links | Backend | Immutable setelah submit; struktur lihat bawah | Internal Restricted |
-| `status` | Lifecycle report | Backend | `DRAFT`, `SUBMITTED`, `REOPENED`, `VOIDED` — `VOIDED` via aksi governance Super Admin; endpoint VOIDED **deferred** pada MVP (nilai reserved, belum dapat dicapai via aplikasi) | Internal |
+| `checklist_version_id` | Version checklist yang digunakan | Backend | FK `checklist_versions` status `PUBLISHED`; snapshot dibuat/di-refresh saat submit | Internal |
+| `snapshot` | Snapshot JSONB: definisi checklist + site + EOS + network links | Backend | Dibuat saat submit (di-refresh pada resubmit setelah reopen); immutable setelah submit; struktur lihat bawah | Internal Restricted |
 | `revision` | Nomor revisi setelah reopen | Backend | Default 0; bertambah tiap resubmit; nomor report tidak berubah | Internal |
 | `submitted_at` | Waktu submit resmi | Backend | UTC nullable until submit | Internal |
 | `reopened_at` | Waktu report dibuka kembali | Backend | UTC nullable; maksimum 7 hari kalender setelah submit | Internal |
@@ -232,14 +230,13 @@ Unique: `(eos_user_id, site_id, work_date_local)` — satu report per EOS/site/t
 
 Snapshot menyertakan field `schema_version` (integer; nilai awal `1`) per objek agar struktur dapat berevolusi tanpa merusak interpretasi data historis.
 
-`snapshot.checklist` (definisi checklist saat report dibuat):
+`snapshot.checklist` (definisi checklist yang disnapshot saat submit):
 
 | Field | Tipe | Catatan |
 |---|---|---|
 | `schema_version` | integer | `1` |
 | `checklist_version_id` | UUID | Version checklist yang disnapshot |
-| `template_code` | string | `DAILY_SITE_REPORT` |
-| `sections` | array | Lihat `sections[]` di §6.3 (struktur identik dengan `structure` pada `checklist_versions`) |
+| `sections` | array | Lihat `sections[]` di §6.4 (struktur identik dengan `structure` pada `checklist_versions`) |
 
 `snapshot.site`:
 
@@ -261,7 +258,7 @@ Snapshot menyertakan field `schema_version` (integer; nilai awal `1`) per objek 
 | `schema_version` | integer (`1`) |
 | `user_id` | UUID |
 | `employee_code` | string |
-| `full_name` | string |
+| `name` | string |
 
 `snapshot.network_links`:
 
@@ -286,14 +283,26 @@ Contoh: CMX.WR.202610.0001
 
 Sequence native PostgreSQL tidak direset bulanan/tahunan dan hanya dialokasikan saat submit sukses (`nextval` dalam transaction submit), bukan ketika draft dibuat. Tidak ada tabel counter — allocation murni via SEQUENCE database.
 
-### 6.3 `checklist_versions` — master versioned (JSON)
+### 6.3 `checklist_templates` — master template
+
+Master template checklist (MVP: satu template global `DAILY_SITE_REPORT`); versi-versinya dikelola pada `checklist_versions` (§6.4).
+
+| Field | Definisi bisnis | Owner | Validasi |
+|---|---|---|---|
+| `checklist_templates.id` | ID template | System | UUID |
+| `code` | Kode template stabil | Super Admin | Unique; MVP `DAILY_SITE_REPORT` |
+| `name` | Nama template | Super Admin | Required, max 200 |
+| `created_by_user_id` | Pembuat template | System | FK user |
+| `created_at`, `updated_at` | Audit fields | System | UTC |
+
+### 6.4 `checklist_versions` — master versioned (JSON)
 
 Satu tabel versi + struktur JSON (bukan 5–6 tabel relasional). Super Admin publish; version `PUBLISHED` immutable. Satu template global `DAILY_SITE_REPORT`.
 
 | Field | Definisi | Owner | Validasi |
 |---|---|---|---|
 | `checklist_versions.id` | ID version | System | UUID |
-| `template_code` | Kode template stabil | Super Admin | `DAILY_SITE_REPORT` (satu template global MVP) |
+| `template_id` | Template induk versi | System | FK `checklist_templates`; unique `(template_id, version_number)` |
 | `version_number` | Nomor versi | System/admin | Unique per template; integer > 0 |
 | `status` | Lifecycle version | Super Admin publish | `DRAFT`, `PUBLISHED`, `SUPERSEDED`, `RETIRED` |
 | `structure` | Struktur JSON checklist: section/item/option/rule | Super Admin | Validasi struktur saat save/publish; lihat `structure` di bawah |
@@ -315,8 +324,8 @@ Struktur `structure` (JSONB):
 
 | Field | Tipe | Catatan |
 |---|---|---|
-| `section_code` | string | Unique dalam version |
-| `section_label` | string | |
+| `code` | Kode section | Unique dalam version |
+| `name` | Label section | |
 | `display_order` | integer | Urutan deterministic |
 | `evidence_required` | boolean | Section Evidence wajib (true untuk semua section operasional; Info Umum optional) |
 | `evidence_min_count` / `evidence_max_count` | integer | Baseline 1/5 untuk required; 0/5 untuk optional |
@@ -326,15 +335,15 @@ Struktur `structure` (JSONB):
 
 | Field | Tipe | Catatan |
 |---|---|---|
-| `item_code` | string | Unique dalam version |
-| `item_label` | string | |
+| `code` | Kode item | Unique lintas section dalam satu version |
+| `label` | Label item | |
 | `input_type` | string | Enum input type (lihat §13) |
-| `options` | array of string | Hanya untuk `ENUM` |
+| `options` | array of `{code, label, display_order}` | Hanya untuk `ENUM` |
 | `unit` | string nullable | Unit item (mis. `%`, `°C`, `ms`) |
 | `is_required` | boolean | Kewajiban item |
 | `allows_not_applicable` | boolean | Apakah N/A valid |
 | `allows_item_evidence` | boolean | Evidence level item; maksimum 5 attachment |
-| `validation_rules` | object nullable | Range/min/max/precision/option/schema item |
+| `validation` | object nullable | Range/min/max/precision/option/schema item |
 | `rules` | array | Rule item — lihat `rules[]` di bawah |
 | `evidence_min_count` / `evidence_max_count` | integer | Batas attachment item evidence (0/5) |
 
@@ -347,9 +356,9 @@ Struktur `structure` (JSONB):
 | `action` | object | Aksi rule, mis. `{"note": true}` |
 | `error_code` | string | Error code katalog untuk validasi submit |
 
-Rules v1 divalidasi **eksplisit per rule di kode** (FormRequest/service), bukan interpreter JSON generik (interpreter generik direncanakan untuk checklist v2); menghasilkan error code katalog. Seluruh rules FR-10 v1 lama dipertahankan (lihat §6.5).
+Rules v1 divalidasi **eksplisit per rule di kode** (FormRequest/service), bukan interpreter JSON generik (interpreter generik direncanakan untuk checklist v2); menghasilkan error code katalog. Seluruh rules FR-10 v1 lama dipertahankan (lihat §6.6).
 
-### 6.4 Tipe nilai structured
+### 6.5 Tipe nilai structured
 
 #### `ThroughputValue`
 
@@ -395,7 +404,7 @@ Connection test manual oleh EOS sebelum report submit; wajib terpisah untuk `MAI
 
 Rules: `SUCCESS` → download, upload, latency, jitter, screenshot `AVAILABLE` wajib; `FAILED`/`NOT_TESTED` → note alasan wajib. Bila link down, entry speedtest link tersebut tetap wajib (`FAILED` atau `NOT_TESTED` dengan reason `Link down`). Secondary test wajib mengikuti safe routing/failover SOP (detail SOP per router/site = Open Operational Configuration).
 
-### 6.5 Checklist Master v1
+### 6.6 Checklist Master v1
 
 Template `DAILY_SITE_REPORT`, satu version `PUBLISHED` global pada MVP.
 
@@ -449,7 +458,7 @@ Aturan Evidence Section:
 - Satu attachment hanya teraut ke tepat satu context (`attachment_links` 1-baris-per-attachment); evidence untuk context berbeda diunggah terpisah, file sama boleh diunggah ulang.
 - Satu screenshot Main Link tidak otomatis menjadi evidence Secondary Link; bukti Secondary Link diunggah terpisah.
 
-### 6.6 `daily_report_answers`
+### 6.7 `daily_report_answers`
 
 | Field | Definisi bisnis | Source/owner | Validasi | Kelas |
 |---|---|---|---|---|
@@ -463,12 +472,12 @@ Aturan Evidence Section:
 
 Unique: `(daily_report_id, item_code)`. Nilai `value` (JSONB) untuk tipe item:
 
-- `ENUM`: `{"value": "MINOR"}`
+- `ENUM`: `{"option_code": "MINOR"}` — memakai kunci `option_code` (kode opsi `options[].code` pada struktur checklist), bukan `value`
 - `LINK_TRAFFIC`: `{status, avg_inbound, peak_inbound, avg_outbound, peak_outbound, source, note}` dengan setiap throughput berupa `ThroughputValue` (`{value, unit, normalized_kbps}`)
 - `SPEEDTEST_RESULT`: `{status, link_role, download, upload, latency_ms, jitter_ms, packet_loss_percent, server_name, route_declaration, note}`
-- `NUMBER`/`PERCENTAGE`/`INTEGER`/`DURATION`/`TEXT`/`BOOLEAN`/`READ_ONLY`: nilai skalar sesuai `input_type` dan `validation_rules` item
+- `NUMBER`/`PERCENTAGE`/`INTEGER`/`DURATION`/`TEXT`/`BOOLEAN`/`READ_ONLY`: nilai skalar sesuai `input_type` dan `validation` item
 
-### 6.7 Evidence Section (via `attachment_links`)
+### 6.8 Evidence Section (via `attachment_links`)
 
 Evidence Section pada akhir setiap section checklist **tidak disimpan sebagai tabel terpisah**. `attachment_links` (lihat §7.3) adalah **source of truth relasi evidence**: relasi section-evidence disimpan sebagai baris `attachment_links` dengan `context_type = DAILY_REPORT_SECTION` dan `context_id` = ID Daily Report, dengan kode section dibawa pada konteks link.
 
@@ -568,9 +577,24 @@ Model aset: **EOS yang meregistrasi aset saat barang datang dari gudang Comtroni
 | `created_at`, `updated_at` | Audit fields | System | UTC | Internal |
 | registration photo | Bukti foto saat registrasi | Attachment module | **Wajib** saat registrasi (`ASSET_REGISTRATION_PHOTO`, context `ASSET`) | Sensitive Operational |
 
-Perubahan status asset = aksi beralasan (reason wajib) + event `activity_log` + foto tambahan bila rusak/hilang. Aset tidak dihapus langsung; status `DISPOSED`/`LOST`/`RETURNED` adalah terminal state. Asset tag immutable. Barang material/sparepart = stok kuantitas per site (§8.3–§8.4), bukan asset terregistrasi.
+Perubahan status asset = aksi beralasan (reason wajib) + event `activity_log` + foto tambahan bila rusak/hilang. Aset tidak dihapus langsung; status `DISPOSED`/`LOST`/`RETURNED` adalah terminal state. Asset tag immutable. Barang material/sparepart = stok kuantitas per site (§8.4–§8.5), bukan asset terregistrasi.
 
-### 8.3 `inventory_items` (catalog) dan `inventory_stock`
+### 8.3 `asset_status_history`
+
+Histori perubahan status aset — setiap transisi beralasan, diaudit (`activity_log`), dan menyertakan foto bila rusak/hilang. Append-only; transisi disimpan bersama audit event dalam satu database transaction.
+
+| Field | Definisi bisnis | Owner | Validasi | Kelas |
+|---|---|---|---|---|
+| `asset_status_history.id` | ID histori | System | UUID | Internal Restricted |
+| `asset_id` | Asset yang berubah status | System | FK `assets` | Internal Restricted |
+| `from_status` | Status sebelum transisi | System | Enum `asset.status` | Internal |
+| `to_status` | Status setelah transisi | Authorized inventory flow | `IN_USE`, `SPARE`, `RETURNED`, `DAMAGED`, `LOST`, `DISPOSED` | Internal |
+| `reason` | Alasan transisi | Authorized actor | Required untuk setiap transisi | Internal Restricted |
+| `photo_attachment_id` | Foto kondisi | Attachment module | FK attachment nullable; **wajib** bila `to_status` = `DAMAGED`/`LOST` (`ASSET_STATUS_PHOTO`) | Sensitive Operational |
+| `changed_by_user_id` | Actor perubahan | Session actor | FK user | Internal Restricted |
+| `created_at` | Waktu transisi | Backend | UTC; not null | Internal |
+
+### 8.4 `inventory_items` (catalog) dan `inventory_stock`
 
 | Field | Definisi | Owner | Validasi |
 |---|---|---|---|
@@ -586,7 +610,7 @@ Perubahan status asset = aksi beralasan (reason wajib) + event `activity_log` + 
 | `inventory_stock.quantity_on_hand` | Saldo material saat ini | System only via transaction | numeric(18,3); no direct UI edit; tidak boleh negatif |
 | `inventory_stock.updated_at` | Waktu saldo terakhir berubah | System | UTC |
 
-### 8.4 `inventory_transactions` (ledger)
+### 8.5 `inventory_transactions` (ledger)
 
 | Field | Definisi | Source/owner | Validasi |
 |---|---|---|---|
@@ -644,12 +668,11 @@ Event notifikasi pada MVP:
 ```text
 DAILY_REPORT_REOPENED      → report dibuka kembali oleh Supervisor/Super Admin
 ATTACHMENT_REJECTED        → upload attachment ditolak validasi
-EXPORT_COMPLETED           → export selesai di-stream ke requester
 ```
 
 ### 10.2 Export — format, preset, dan audit
 
-Tiga format: **Excel (xlsx) styled** (header bold, border, lebar kolom auto, judul+periode di header, filename dinamis), **PDF formal** (header instansi, siap cetak), **CSV** (data mentah). Kustomisasi: pilih kolom (checkbox per kolom), filter periode/site/status/EOS, disimpan sebagai **preset per user**. Export berjalan sinkron (streamed response); Manager dan Super Admin sesuai scope.
+Tiga format: **Excel (xlsx) styled** (header bold, border, lebar kolom auto, judul+periode di header, filename dinamis), **PDF formal** (header instansi, siap cetak), **CSV** (data mentah). Kustomisasi: pilih kolom (checkbox per kolom), filter periode/site/status/EOS, disimpan sebagai **preset per user**. Export berjalan sinkron (streamed response) sesuai matriks role `prd.md` §4: Super Admin (penuh), Manager (lintas-site scope), Supervisor (site scope), HR (hanya `ATTENDANCE`, kehadiran sesuai otorisasi).
 
 #### `export_presets`
 
@@ -657,7 +680,7 @@ Tiga format: **Excel (xlsx) styled** (header bold, border, lebar kolom auto, jud
 |---|---|---|---|
 | `export_presets.id` | ID preset | System | UUID |
 | `user_id` | Pemilik preset | Session | FK users; unique `(user_id, name)` |
-| `name` | Nama preset | User (Manager/Super Admin) | Required, max 100 |
+| `name` | Nama preset | User (Super Admin/Manager/Supervisor/HR sesuai scope export) | Required, max 100 |
 | `data_type` | Jenis data yang diexport | User | `ATTENDANCE`, `DAILY_REPORT`, `INVENTORY`, `ASSET`, `INVENTORY_FINDING` |
 | `format` | Format output | User | `XLSX`, `PDF`, `CSV` |
 | `columns` | Daftar kolom terpilih (ordered) | User | JSONB array of column key; hanya kolom yang tersedia untuk `data_type` |
@@ -695,7 +718,7 @@ Audit memakai `spatie/laravel-activitylog` — dipasang di titik kritis eksplisi
 |---|---|---|
 | `activity_log.id` | ID event (bigint PK bawaan spatie) | Immutable |
 | `log_name` | Grup/nama log | e.g. `auth`, `attendance`, `report`, `inventory`, `attachment`, `export`, `master` |
-| `description` | Kode/uraian event | e.g. `LOGIN`, `LOGIN_LOCKED`, `PASSWORD_RESET`, `ATTENDANCE_CHECKED_IN`, `ATTENDANCE_CLOCKED_OUT`, `DAILY_REPORT_SUBMITTED`, `DAILY_REPORT_REOPENED`, `CHECKLIST_PUBLISHED`, `INVENTORY_MUTATION_POSTED`, `ASSET_STATUS_CHANGED`, `ASSET_REGISTERED`, `ATTACHMENT_REJECTED`, `SENSITIVE_DATA_ACCESSED`, `EXPORT_REQUESTED`, `SITE_COORDINATES_CHANGED`, `ROLE_ASSIGNED` |
+| `description` | Kode/uraian event | e.g. `LOGIN`, `LOGIN_LOCKED`, `PASSWORD_RESET`, `ATTENDANCE_CHECKED_IN`, `ATTENDANCE_CLOCKED_OUT`, `DAILY_REPORT_SUBMITTED`, `DAILY_REPORT_REOPENED`, `CHECKLIST_PUBLISHED`, `INVENTORY_MUTATION_POSTED`, `ASSET_STATUS_CHANGED`, `ASSET_REGISTERED`, `ATTACHMENT_REJECTED`, `SENSITIVE_DATA_ACCESSED`, `EXPORT_REQUESTED`, `SITE_COORDINATES_UPDATED`, `ROLE_ASSIGNED` |
 | `subject_type`, `subject_id` | Entity yang dipengaruhi (morph) | Required untuk event domain |
 | `causer_type`, `causer_id` | Actor (morph, umumnya `users`) | Nullable untuk system/job |
 | `properties` | Snapshot perubahan/konteks (JSON) | Tidak menyimpan password/token/secret/binary; berisi before/after terfilter, reason, request context (IP/user agent bila relevan) |
@@ -934,7 +957,6 @@ CANCELLED
 notification event type:
 DAILY_REPORT_REOPENED
 ATTACHMENT_REJECTED
-EXPORT_COMPLETED
 
 
 export_presets.data_type / export data_type:
@@ -972,9 +994,9 @@ Restore drill: terjadwal, dicatat pada restore_tests
 ```text
 - Server owns official timestamps, business date, timezone evaluation,
   report number, distance calculation, and stock balance.
-- Client evidence (GPS point, accuracy, captured time) is never accepted
-  as final decision without server validation, but jarak Haversine
-  disimpan sebagai INFORMASI — tidak ada gerbang radius penolakan.
+- Client evidence (GPS point, accuracy) is never accepted as final decision
+  without server validation, but jarak Haversine disimpan sebagai
+  INFORMASI — tidak ada gerbang radius penolakan.
 - UUID/FK references must belong to authorized actor/site/report context.
 - One EOS has at most one ACTIVE site assignment at a time.
 - One attendance record per EOS/site/work_date_local (unique); check-in
@@ -1032,5 +1054,5 @@ Restore drill: terjadwal, dicatat pada restore_tests
 | Inventory Finding | EOS reporter/Supervisor reviewer | EOS create; Supervisor workflow | Scope-based |
 | Attachment | Attachment module | Authorized uploader/system job (derivative) | Private/scope-based; sensitive access diaudit |
 | Notification | System | System (queued job) | Recipient only |
-| Export preset | User (Manager/Super Admin) | Owner user CRUD sendiri | Owner only |
+| Export preset | User (Super Admin/Manager/Supervisor/HR sesuai scope export) | Owner user CRUD sendiri | Owner only |
 | Activity log (audit) | System | Application only (spatie activitylog) | Super Admin/limited authorized read |

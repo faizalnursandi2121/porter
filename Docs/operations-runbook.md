@@ -69,7 +69,6 @@ Tidak ada Attendance Request dan tidak ada recovery kehadiran di sistem. Kegagal
 - Backup job failure (PostgreSQL pg_dump / attachment rsync).
 - Health endpoint /up tidak 200.
 - Disk usage > 80%.
-- Site attachment storage quota > 80% (notif warning Super Admin).
 - Worker backlog meningkat / repeated worker job failure (failed_jobs).
 - Scheduled task scheduler gagal berjalan.
 ```

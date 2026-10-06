@@ -37,7 +37,7 @@ Setiap halaman menerima prop standar (shared props middleware):
 
 | Prop | Isi | Keterangan |
 |---|---|---|
-| `auth.user` | user aktif: `id`, `full_name`, `employee_code`, `email`, `role` | single role per user |
+| `auth.user` | user aktif: `id`, `name`, `employee_code`, `email`, `role` | single role per user |
 | `auth.can` | permission ringkas (hasil Policies) | untuk render kondisional UI |
 | `auth.unread_notifications` | count badge notifikasi | UI tidak pernah menghitung lokal |
 | `flash` | `{ type: 'success' | 'error', message: string }` | dari session flash |
@@ -161,7 +161,7 @@ Form user (`admin.users.store`/`admin.users.update`):
 
 | Field | Rule |
 |---|---|
-| `full_name` | wajib |
+| `name` | wajib |
 | `email` | wajib, email, unik |
 | `employee_code` | wajib, unik (format `EOS-###` untuk role EOS) |
 | `role` | wajib; enum `SUPER_ADMIN, MANAGER, SUPERVISOR, HR, EOS`; single role per user; 5 role fixed |
@@ -213,8 +213,8 @@ Halaman master berada di area `/supervisor/master/...` (dipakai bersama oleh SUP
 | `supervisor.master.sites.index` `/supervisor/master/sites` | GET | `Supervisor/Master/Sites/Index` (list + filter status/kode/nama) | SUPERVISOR, MANAGER (read), SUPER_ADMIN | — |
 | `supervisor.master.sites.create` `/supervisor/master/sites/create` | GET | `Supervisor/Master/Sites/Create` | SUPER_ADMIN | — |
 | `supervisor.master.sites.store` `/supervisor/master/sites` | POST | redirect `sites.index` | SUPER_ADMIN | lihat form |
-| `supervisor.master.sites.edit` `/supervisor/master/sites/{site}/edit` | GET | `Supervisor/Master/Sites/Edit` (+ tab network link §5.2) | SUPER_ADMIN; SUPERVISOR scope | — |
-| `supervisor.master.sites.update` `/supervisor/master/sites/{site}` | PATCH | redirect back | SUPER_ADMIN; SUPERVISOR scope | lihat form + reason |
+| `supervisor.master.sites.edit` `/supervisor/master/sites/{site}/edit` | GET | `Supervisor/Master/Sites/Edit` (+ tab network link §5.2) | SUPER_ADMIN | — |
+| `supervisor.master.sites.update` `/supervisor/master/sites/{site}` | PATCH | redirect back | SUPER_ADMIN | lihat form + reason |
 
 Form site:
 
@@ -237,8 +237,8 @@ Form site:
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
-| `supervisor.master.network-links.store` `/supervisor/master/sites/{site}/network-links` | POST | redirect back (tab network link pada halaman edit site) | SUPER_ADMIN; SUPERVISOR scope | lihat form |
-| `supervisor.master.network-links.update` `/supervisor/master/sites/{site}/network-links/{link}` | PATCH | redirect back | SUPER_ADMIN; SUPERVISOR scope | lihat form |
+| `supervisor.master.network-links.store` `/supervisor/master/sites/{site}/network-links` | POST | redirect back (tab network link pada halaman edit site) | SUPER_ADMIN | lihat form |
+| `supervisor.master.network-links.update` `/supervisor/master/sites/{site}/network-links/{link}` | PATCH | redirect back | SUPER_ADMIN | lihat form |
 
 Form network link (`site_network_links`):
 
@@ -261,9 +261,9 @@ Form network link (`site_network_links`):
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
 | `supervisor.master.assignments.index` `/supervisor/master/assignments` | GET | `Supervisor/Master/Assignments/Index` (list + filter site/EOS/aktif) | SUPERVISOR, MANAGER (read), SUPER_ADMIN | — |
-| `supervisor.master.assignments.create` `/supervisor/master/assignments/create` | GET | `Supervisor/Master/Assignments/Create` | SUPER_ADMIN | — |
-| `supervisor.master.assignments.store` `/supervisor/master/assignments` | POST | redirect back | SUPER_ADMIN | lihat form |
-| `supervisor.master.assignments.update` `/supervisor/master/assignments/{assignment}` | PATCH | redirect back | SUPER_ADMIN | lihat form |
+| `supervisor.master.assignments.create` `/supervisor/master/assignments/create` | GET | `Supervisor/Master/Assignments/Create` | SUPERVISOR, SUPER_ADMIN | — |
+| `supervisor.master.assignments.store` `/supervisor/master/assignments` | POST | redirect back | SUPERVISOR, SUPER_ADMIN | lihat form |
+| `supervisor.master.assignments.update` `/supervisor/master/assignments/{assignment}` | PATCH | redirect back | SUPERVISOR, SUPER_ADMIN | lihat form |
 
 Form assignment:
 
@@ -541,7 +541,7 @@ Model: `assets` + `inventory_items` (catalog) + `inventory_stock` (saldo per sit
 
 ### 10.1 Aset — registrasi oleh EOS
 
-Aset diregistrasi **EOS** saat barang datang dari gudang (bukan Supervisor). Tag asset + serial number sudah ada dari gudang Comtronics — EOS input apa adanya; barang tidak berpindah antar site; rusak → dikembalikan ke gudang.
+Aset diregistrasi **EOS** saat barang datang dari gudang (bukan Supervisor). Tag asset sudah ada dari gudang Comtronics — EOS input apa adanya; serial number diisi bila perangkat punya SN (opsional/nullable, input apa adanya); barang tidak berpindah antar site; rusak → dikembalikan ke gudang.
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
@@ -558,7 +558,7 @@ Form registrasi aset:
 | Field | Rule |
 |---|---|
 | `asset_tag` | wajib; regex format `CMX.{SITE_CODE}.{CATEGORY}.{SEQ}` (site code dari assignment); unik |
-| `serial_number` | wajib; unik; input apa adanya dari gudang |
+| `serial_number` | opsional (nullable); bila diisi harus unik; input apa adanya dari gudang (bila perangkat punya SN) |
 | `category_id` | wajib; asset category aktif |
 | `name` / `description` | opsional |
 | `photo` (`attachment_ids`) | **wajib minimal 1** — foto barang saat registrasi |
@@ -635,8 +635,8 @@ Form finding (EOS):
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
-| `supervisor.master.asset-categories.*` `/supervisor/master/asset-categories...` | GET/POST/PATCH | `Supervisor/Master/AssetCategories/...` | SUPER_ADMIN (write); SUPERVISOR, MANAGER (read) | nama wajib, unik |
-| `supervisor.master.catalog.*` `/supervisor/master/catalog...` | GET/POST/PATCH | `Supervisor/Master/Catalog/...` (inventory items catalog) | SUPER_ADMIN (write); SUPERVISOR, MANAGER (read) | sku/nama wajib, unik; unit |
+| `supervisor.master.asset-categories.*` `/supervisor/master/asset-categories...` | GET/POST/PATCH | `Supervisor/Master/AssetCategories/...` | SUPER_ADMIN, MANAGER, SUPERVISOR | nama wajib, unik |
+| `supervisor.master.catalog.*` `/supervisor/master/catalog...` | GET/POST/PATCH | `Supervisor/Master/Catalog/...` (inventory items catalog) | SUPER_ADMIN, MANAGER, SUPERVISOR | sku/nama wajib, unik; unit |
 
 - Semua mutasi master: konfirmasi UX, otorisasi server, validasi input, audit; tidak ada hard delete (pakai status/retirement).
 
@@ -646,7 +646,7 @@ Local disk private (`storage/app`, di luar `public/`). Format `JPG/JPEG, PNG, We
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
-| `attachments.store` `/attachments` | POST | upload (multipart) → JSON response `{ attachment_id, status }` untuk form JS (Inertia partial) | Sesuai context upload | validasi sinkron |
+| `attachments.store` `/attachments` | POST | upload (multipart) → redirect back dengan flash (PRG, §2.4); metadata attachment tersedia via shared prop untuk form — bukan response JSON (binary stream hanya untuk download/preview, §2.7) | Sesuai context upload | validasi sinkron |
 | `attachments.show` `/attachments/{attachment}` | GET | metadata (dipakai form untuk status) | owner/scope | — |
 | `attachments.preview` `/attachments/{attachment}/preview` | GET | streamed variant preview/thumbnail | Policy + visibility matrix | audit sensitive |
 | `attachments.download` `/attachments/{attachment}/download` | GET | streamed original | Policy (role/use case evidence asli) | audit selalu |
@@ -700,7 +700,6 @@ Event minimum (`notification_type`):
 ```text
 DAILY_REPORT_REOPENED      report dibuka ulang oleh Supervisor/Super Admin (untuk EOS owner)
 ATTACHMENT_REJECTED        attachment gagal validasi (untuk uploader)
-EXPORT_COMPLETED           export selesai (untuk actor export)
 ```
 
 (Event attendance-request dihapus bersama modulnya.) `read-all` menandai semua notifikasi unread milik user; flash: "Semua notifikasi ditandai dibaca."
@@ -709,13 +708,13 @@ EXPORT_COMPLETED           export selesai (untuk actor export)
 
 Tiga format output: **xlsx styled** (header bold, border, lebar kolom auto, judul + periode di header sheet, filename dinamis), **PDF formal** (header instansi, siap cetak), **CSV** (data mentah). Kustomisasi: pilih kolom (checkbox per kolom), filter periode/site/status/EOS, disimpan sebagai **preset per user** (dipakai ulang). Sinkron streamed; audit event sebelum stream dimulai.
 
-Panel export di-embed pada halaman data backoffice (`supervisor.attendance.index`, `supervisor.daily-reports.index`, `supervisor.inventory.*`) sebagai tombol/panel yang membuka form export (field sama dengan `exports.create`); submit panel memakai route `exports.download` yang sama.
+Panel export di-embed pada halaman data backoffice (`supervisor.attendance.index`, `supervisor.daily-reports.index`, `supervisor.inventory.*`, `hr.attendance.index`) sebagai tombol/panel yang membuka form export (field sama dengan `exports.create`); submit panel memakai route `exports.download` yang sama. Panel pada halaman Supervisor dibatasi site scope; panel pada halaman HR hanya menawarkan `data_type ATTENDANCE` sesuai otorisasi scope.
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
-| `exports.create` `/exports` | GET | `Exports/Create` (form pilih kolom + filter + preset; pratinjau kolom) | MANAGER, SUPER_ADMIN | — |
-| `exports.download` `/exports` | POST | streamed binary (xlsx/pdf/csv) — submit form biasa, bukan router Inertia (§2.7) | MANAGER, SUPER_ADMIN | lihat parameter |
-| `export-presets.store` `/export-presets` | POST | redirect `exports.create` | MANAGER, SUPER_ADMIN | lihat form |
+| `exports.create` `/exports` | GET | `Exports/Create` (form pilih kolom + filter + preset; pratinjau kolom) | MANAGER, SUPERVISOR, SUPER_ADMIN, HR (`data_type ATTENDANCE` saja, sesuai otorisasi scope) | — |
+| `exports.download` `/exports` | POST | streamed binary (xlsx/pdf/csv) — submit form biasa, bukan router Inertia (§2.7) | MANAGER, SUPERVISOR, SUPER_ADMIN, HR (`data_type ATTENDANCE` saja, sesuai otorisasi scope) | lihat parameter |
+| `export-presets.store` `/export-presets` | POST | redirect `exports.create` | MANAGER, SUPERVISOR, SUPER_ADMIN, HR | lihat form |
 | `export-presets.update` `/export-presets/{preset}` | PATCH | redirect back | owner preset | preset milik user |
 | `export-presets.destroy` `/export-presets/{preset}` | DELETE | redirect `exports.create` | owner preset | — |
 
@@ -731,7 +730,7 @@ Parameter `exports.download` (juga field preset):
 | `status` / `eos_user_id` | Tidak | filter sesuai `data_type` |
 
 - Kolom/filter/sort di luar allowlist ditolak → error form.
-- Privacy visibility di-enforce: Manager tidak boleh meng-export raw selfie/precise GPS/sensitive attachment → error: "Pilihan kolom melanggar batas visibility data." Filter/scope di luar scope actor ditolak sama.
+- Privacy visibility di-enforce: Manager tidak boleh meng-export raw selfie/precise GPS/sensitive attachment → error: "Pilihan kolom melanggar batas visibility data." Filter/scope di luar scope actor ditolak sama. HR hanya boleh `data_type ATTENDANCE` sesuai otorisasi scope kehadiran; `data_type` lain oleh HR ditolak dengan error yang sama.
 - Audit event export (actor, role, data_type, format, kolom, filter, scope, timestamp) ditulis sinkron sebelum stream dimulai.
 - Filename dinamis (mis. `daily-reports-2026-10_SRX.xlsx`), `Content-Type` sesuai format, streamed response.
 - Export `ATTENDANCE` memuat field bukti kehadiran (`check_in_local`, `clock_out_local`, `status`, jarak info); tanpa kolom late/disiplin (dihapus). Penandaan visual adalah urusan UI, bukan data export.
@@ -754,13 +753,13 @@ Audit aplikasi memakai `spatie/laravel-activitylog` (tabel `activity_log`) dipas
 
 | Route | Method | Page / Action | Role | Validasi kunci |
 |---|---|---|---|---|
-| `admin.audit-logs.index` `/admin/audit-logs` | GET | `Admin/AuditLogs/Index` (list + filter `causer`, `event`, `date_from`/`date_to`, entitas) | SUPER_ADMIN | filter allowlist |
-| `admin.audit-logs.show` `/admin/audit-logs/{log}` | GET | `Admin/AuditLogs/Show` | SUPER_ADMIN | view sensitive diaudit |
+| `admin.audit-logs.index` `/admin/audit-logs` | GET | `Admin/AuditLogs/Index` (list + filter `causer`, `event`, `date_from`/`date_to`, entitas) | SUPER_ADMIN (full); MANAGER, SUPERVISOR (ringkasan); HR (terbatas event kehadiran) | filter allowlist |
+| `admin.audit-logs.show` `/admin/audit-logs/{log}` | GET | `Admin/AuditLogs/Show` | SUPER_ADMIN; MANAGER, SUPERVISOR (ringkasan); HR (terbatas event kehadiran) | view sensitive diaudit |
 | `admin.storage-usage.index` `/admin/storage-usage` | GET | `Admin/StorageUsage/Index` (ringkasan per site) | SUPER_ADMIN | — |
 | `admin.config.index` `/admin/config` | GET | `Admin/Config/Index` (ringkasan konfigurasi operasional aplikasi: policy password, session, batas upload, versi checklist aktif) | SUPER_ADMIN | view diaudit |
 
 - Audit log read-only, append-only; tidak ada route mutation. Halaman ini sendiri merupakan sensitive access yang diaudit.
-- Storage usage: bytes terpakai per site (attachment), `usage_percent`, dan status warning `OK | WARNING | CRITICAL` pada ambang 80%+; menjadi alat pemantauan Super Admin (tanpa notifikasi otomatis pada MVP).
+- Storage usage: bytes terpakai per site (attachment) sebagai alat pemantauan Super Admin — tanpa kuota per-site dan tanpa status warning/notifikasi otomatis pada MVP (kuota 2GB/site dihapus; monitoring via health endpoint + structured log).
 - Halaman config bersifat ringkasan/pemantauan (single-project, nilai via config aplikasi); tidak mengubah konfigurasi runtime pada MVP.
 
 ## 16. Matriks Otorisasi Halaman/Aksi
@@ -774,16 +773,17 @@ Audit aplikasi memakai `spatie/laravel-activitylog` (tabel `activity_log`) dipas
 | Daily Report own (create/fill/submit) | Ya | Tidak | Tidak | Tidak | Tidak |
 | Daily Report read/reopen | — | Read + reopen (`/supervisor/daily-reports`) | Read | Tidak | Read + reopen + full admin |
 | Checklist version | — | Read + draft author (`/supervisor/master/checklists`) | Read + draft author | Tidak | Full + publish (`/admin/checklists`) |
-| Site master + network link | — | Read + edit scope (`/supervisor/master/sites`) | Read | Tidak | Full |
-| Assignment | — | Read (`/supervisor/master/assignments`) | Read | Tidak | Full |
+| Site master + network link | — | Read (`/supervisor/master/sites`) | Read | Tidak | Full |
+| Assignment | — | Kelola (`/supervisor/master/assignments`) | Read | Tidak | Full |
 | Aset: registrasi + status change | Ya (site assignment) | Status change (scope) | Read | Tidak | Full |
 | Stok/mutasi inventory | Read site | Mutasi (scope) | Read | Tidak | Full |
 | Finding create own site | Ya | Read + review/resolve | Read | Tidak | Full |
 | Attachment own upload/preview | Ya | Preview scope sesuai visibility | Terbatas (tanpa raw selfie/GPS) | Tidak | Full |
 | Notification own | Ya | Ya | Ya | Ya | Ya |
-| Export (`/exports`) | Tidak | Tidak | Ya sesuai scope | Tidak | Ya |
+| Export (`/exports`) | Tidak | Ya (site scope) | Ya sesuai scope | Ya (`data_type ATTENDANCE` sesuai otorisasi) | Ya |
 | Analytics (`/manager/analytics/{type}`) | Tidak | Tidak | Ya | Tidak | Ya |
-| User/role/reset + audit view + storage usage + config | Tidak | Tidak | Tidak | Tidak | Ya (`/admin/*`) |
+| User/role/reset + storage usage + config | Tidak | Tidak | Tidak | Tidak | Ya (`/admin/*`) |
+| Audit view (`/admin/audit-logs`) | Tidak | Ringkasan | Ringkasan | Terbatas kehadiran | Full |
 
 Otorisasi final di-enforce oleh middleware role + Policy + FormRequest + service; tabel ini hanya ringkasan navigasi. Scope role non-EOS MVP = semua site aktif. Data sensitif (selfie, precise GPS, accuracy, evidence) diakses sesuai visibility matrix; setiap akses sensitive diaudit.
 
@@ -855,13 +855,13 @@ Error tak terkategori memakai pesan generik aman; halaman error 403/404/429/500 
 [ ] Daily Report submit transaksional: nomor CMX.WR.YYYYMM.SEQUENCE dialokasikan atomik hanya saat sukses; resubmit REOPENED menambah revision tanpa mengubah nomor.
 [ ] Seluruh rules FR-10 v1 (section, enum, range, note/evidence kondisional, suhu wajib, AP offline vs status, dual-link + LINK_TRAFFIC + 2 SPEEDTEST terpisah) di-enforce di submit.
 [ ] Checklist version: edit hanya DRAFT; publish hanya Super Admin; published immutable; versi sebelumnya SUPERSEDED.
-[ ] Aset diregistrasi EOS dengan tag/SN dari gudang (regex + unik) dan foto wajib; perubahan status beralasan + audit + foto saat DAMAGED/LOST.
+[ ] Aset diregistrasi EOS dengan tag dari gudang (regex + unik), serial number opsional bila perangkat punya SN (nullable), dan foto wajib; perubahan status beralasan + audit + foto saat DAMAGED/LOST.
 [ ] Mutasi stok immutable + reversal via compensating mutation; saldo tidak boleh negatif (row lock).
 [ ] Attachment divalidasi sinkron (magic byte, size ≤ 10 MB, SHA-256, decode-safe) → langsung AVAILABLE/REJECTED; thumbnail WebP via queued job; limit per context ter-enforce.
 [ ] Download/preview attachment hanya via route terkontrol + audit; tanpa public URL.
-[ ] Notifikasi: polling database; event DAILY_REPORT_REOPENED, ATTACHMENT_REJECTED, EXPORT_COMPLETED.
-[ ] Export: xlsx styled/PDF formal/CSV; pilih kolom + filter + preset per user; POST /exports streamed sinkron (form biasa, bukan router Inertia); audit sebelum stream; privacy visibility di-enforce.
-[ ] Audit view read-only Super Admin; aksesnya sendiri diaudit.
+[ ] Notifikasi: polling database; event DAILY_REPORT_REOPENED, ATTACHMENT_REJECTED.
+[ ] Export: xlsx styled/PDF formal/CSV; pilih kolom + filter + preset per user; POST /exports streamed sinkron (form biasa, bukan router Inertia); audit sebelum stream; privacy visibility di-enforce; Supervisor site scope; HR hanya ATTENDANCE sesuai otorisasi.
+[ ] Audit view read-only append-only: Super Admin full; Manager/Supervisor ringkasan; HR terbatas event kehadiran; aksesnya sendiri diaudit.
 [ ] Semua halaman list paginated dengan filter/sort allowlist.
 [ ] Tidak ada endpoint REST/JSON API layer terpisah, envelope data/error, idempotency key, atau artefak OpenAPI di aplikasi.
 ```

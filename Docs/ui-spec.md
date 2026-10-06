@@ -37,7 +37,7 @@ Route baseline memakai server-side routing Laravel + Inertia v3. Setiap entri: `
 /eos/inventory/assets               → EOS/Inventory/Assets/Index       (EOS)
 /eos/inventory/assets/create        → EOS/Inventory/Assets/Create      (EOS; registrasi aset dari gudang)
 /eos/inventory/assets/{asset}       → EOS/Inventory/Assets/Show        (EOS)
-/eos/inventory/stock                → EOS/Inventory/Stock/Index        (EOS; mutasi stok dari sini)
+/eos/inventory/stock                → EOS/Inventory/Stock/Index        (EOS; saldo site assignment, read-only)
 /eos/inventory/findings             → EOS/Inventory/Findings/Index     (EOS)
 /eos/inventory/findings/create      → EOS/Inventory/Findings/Create    (EOS)
 /eos/inventory/findings/{finding}   → EOS/Inventory/Findings/Show      (EOS)
@@ -48,14 +48,13 @@ Route baseline memakai server-side routing Laravel + Inertia v3. Setiap entri: `
 /supervisor/daily-reports/{report}  → Supervisor/DailyReports/Show     (SUPERVISOR; review + reopen)
 /supervisor/inventory/assets        → Supervisor/Inventory/Assets/Index
 /supervisor/inventory/stock         → Supervisor/Inventory/Stock/Index
+/supervisor/inventory/transactions  → Supervisor/Inventory/Transactions/Index (SUPERVISOR, MANAGER read, SUPER_ADMIN; mutasi stok dipost dari sini — Supervisor scope/SA)
 /supervisor/inventory/findings      → Supervisor/Inventory/Findings/Index
 /supervisor/master/sites            → Supervisor/Master/Sites
 /supervisor/master/assignments      → Supervisor/Master/Assignments
 /supervisor/master/checklists       → Supervisor/Master/Checklists     (lihat published + usulan draft)
 /supervisor/master/asset-categories → Supervisor/Master/AssetCategories
 /supervisor/master/catalog          → Supervisor/Master/Catalog
-/supervisor/analytics/{type}        → Supervisor/Analytics/{type}
-
 /manager/dashboard                  → Manager/Dashboard                (MANAGER)
 /manager/analytics/{type}           → Manager/Analytics/{type}
 
@@ -72,7 +71,7 @@ Route baseline memakai server-side routing Laravel + Inertia v3. Setiap entri: `
 
 /notifications                      → Notifications/Index              (semua role)
 
-Export (panel pada halaman data backoffice; SUPER_ADMIN/MANAGER):
+Export (panel pada halaman data backoffice; SUPER_ADMIN/MANAGER/SUPERVISOR/HR sesuai scope — Supervisor site scope, HR data kehadiran sesuai otorisasi):
 POST /exports                       → streamed download (xlsx/pdf/csv) — bukan halaman
 POST /export-presets                → simpan preset
 PATCH /export-presets/{preset}      → ubah/ganti nama preset
@@ -87,19 +86,19 @@ Halaman 403 (`Akses Ditolak`), 404, session expired, dan error page memakai hala
 |---|---|---|
 | Login | POST `/login` (Fortify) | Invalid login, rate limit (lockout 5 gagal/15 menit), session expired |
 | EOS Dashboard (`/eos`) | CTA state machine: check-in → report → clock-out → selesai | Not checked-in, checked-in + report draft/submitted/reopened, completed, dual-link belum lengkap (tanpa CTA report) |
-| Check-in/out (E-05–E-08, E-17–E-19) | POST check-in / clock-out (selfie + GPS + server timestamp UTC) | Location/camera denied (denied flow copy), GPS gagal, upload retry, unconfirmed server, `ALREADY_CHECKED_IN`/`ALREADY_CLOCKED_OUT` (409), tanggal lokal berganti (clock-out), report gate kontinu (redirect ke form Daily Report) |
+| Check-in/out (E-05–E-08, E-17–E-19) | POST check-in / clock-out (selfie + GPS + server timestamp UTC) | Location/camera denied (denied flow copy), GPS gagal, upload retry, unconfirmed server, `ALREADY_CHECKED_IN`/`ALREADY_CLOCKED_OUT` (ValidationException → error bag/redirect back, api-contract 2.3), tanggal lokal berganti (clock-out), report gate kontinu (redirect ke form Daily Report) |
 | Riwayat kehadiran (E-20) | Attendance history/detail props | Status `NOT_CHECKED_IN`/`CHECKED_IN`/`COMPLETED`, check-in/clock-out time (local site), jarak (role berwenang), evidence visibility per role |
-| Daily Report | save draft / submit (FormRequest; snapshot + versioned checklist) | Local/server draft, incomplete, section evidence required (max 5 per section, 10 per report), LINK_TRAFFIC validation, dual Speedtest cards, dual-link snapshot, submitted, reopened (revision) |
+| Daily Report | save draft / submit (FormRequest; snapshot + versioned checklist) | Server draft, incomplete, section evidence required (max 5 per section, 10 per report), LINK_TRAFFIC validation, dual Speedtest cards, dual-link snapshot, submitted, reopened (revision); online-only — tidak ada local draft (FR-13) |
 | Attachment lifecycle | upload → sinkron valid (magic byte/size/hash) → `AVAILABLE`/`REJECTED` | `AVAILABLE`, `REJECTED` (safe copy, no technical detail), format/size rejection |
 | PWA | app shell cache only | Offline badge (`Offline — aplikasi memerlukan koneksi`), no offline authoring (online-only, no IndexedDB draft/sync/expiry/conflict UI — see ux.md 8.5); attendance offline → urusan vendor, tidak ada CTA pengajuan |
-| Notification | mark read per item / mark all read (idempotent) | Header badge unread (polling / props halaman), list (report REOPENED, attachment rejected, export selesai), link ke record sumber, empty `Belum ada notifikasi` |
+| Notification | mark read per item / mark all read (idempotent) | Header badge unread (polling / props halaman), list (report REOPENED, attachment rejected), link ke record sumber, empty `Belum ada notifikasi` |
 | Change password (C-10, `/change-password`) | POST ganti password | `must_change_password` gate: CTA/navigasi disabled, middleware menolak request lain; inline policy (12–128) + konfirmasi mismatch; sukses → revoke semua session → re-login (`Password berhasil diganti. Silakan login kembali.`) |
-| Storage usage (A-06, `/admin/storage-usage`) | Storage usage listing | Site list dengan penggunaan, persentase, status; tanpa kuota per-site (—); alert disk global |
+| Storage usage (A-06, `/admin/storage-usage`) | Storage usage listing | Site list dengan penggunaan (byte human-readable) dan tren; tanpa kuota/alert per-site sama sekali; kesehatan disk global dipantau via structured log + health endpoint, bukan UI alert |
 | Inventory Finding | finding list/create/detail; action resolve/reject (alasan wajib) | Evidence required, open/review/resolve/reject |
 | Registrasi aset (E-21) | POST asset (EOS) | Asset tag regex/unique violation (error bag inline), SN optional dari gudang, foto wajib |
-| Mutasi stok (E-22) | POST inventory transaction (EOS) | Saldo negatif ditolak server, preview saldo sebelum/sesudah, reversal reference |
+| Mutasi stok (S-16) | POST inventory transaction (Supervisor scope/SUPER_ADMIN; route `supervisor.inventory.transactions.store`) | Saldo negatif ditolak server, preview saldo sebelum/sesudah, reversal reference, note wajib untuk ADJUSTMENT/DAMAGED/LOST/TRANSFER* |
 | Supervisor report review (S-04) | POST reopen (alasan wajib) | Batas 7 hari kalender (ditolak server), dampak confirmation, notifikasi EOS, revision |
-| Export (S-16/M-05) | POST `/exports` (streamed xlsx/pdf/csv) + preset CRUD | Filter periode/site/status/EOS, pilih kolom (checkbox), ringkasan sebelum unduh, `Menyiapkan berkas…` disabled state, error + retry tanpa file parsial, 403 pelanggaran scope privacy (`Export tidak diizinkan untuk cakupan data ini`), preset disimpan/dipakai ulang per user |
+| Export (S-15/M-05/H-04) | POST `/exports` (streamed xlsx/pdf/csv) + preset CRUD | Filter periode/site/status/EOS, pilih kolom (checkbox), ringkasan sebelum unduh, `Menyiapkan berkas…` disabled state, error + retry tanpa file parsial, 403 pelanggaran scope privacy (`Export tidak diizinkan untuk cakupan data ini`), preset disimpan/dipakai ulang per user |
 | Backoffice tables | list page + filter query (URL state shareable) | Filter, pagination, empty/error/access denied, loading skeleton |
 
 ## 5. Responsive Rules

@@ -29,10 +29,10 @@ Seluruh test di bawah diimplementasikan sebagai Pest feature test (request → r
 ::- Check-in: selfie + koordinat GPS + server timestamp; record dibuat dengan status CHECKED_IN; selfie check-in tepat satu.
 ::- Clock-out: selfie + koordinat GPS + server timestamp; hanya valid setelah check-in (ALREADY final gate) — record menjadi COMPLETED; selfie clock-out tepat satu.
 ::- Clock-out ditolak bila Daily Report work_date tsb belum SUBMITTED (atau required evidence belum AVAILABLE); response mengarahkan EOS melengkapi report (flow kontinu), bukan error dead-end.
-::- Satu attendance record per EOS + site + work_date_local (unique constraint): check-in kedua ditolak ALREADY_CHECKED_IN; clock-out kedua ditolak ALREADY_CLOCKED_OUT; attempt gagal tetap menghasilkan audit event.
+:::- Satu attendance record per EOS + site + work_date_local (unique constraint): check-in kedua ditolak ALREADY_CHECKED_IN; clock-out kedua ditolak ALREADY_CLOCKED_OUT; attempt gagal tetap menghasilkan audit event; percobaan double submit BERSAMAAN (paralel/race — PRD:655) diuji: dua request check-in paralel untuk EOS+site+tanggal yang sama, tepat satu record dibuat, satunya ditolak ALREADY_CHECKED_IN (unique constraint database menahan race, bukan hanya validasi aplikasi berurutan).
 ::- Check-in dan clock-out harus berada pada local calendar date yang sama (timezone site); pasangan lintas tanggal ditolak.
 ::- Server timestamp (UTC) meng-override client device timestamp yang dimanipulasi; work_date_local dihitung backend dari timezone site.
-::- Jarak Haversine ke site dihitung backend (PHP), disimpan sebagai distance_m (informasi); TIDAK ada penolakan radius/geofence/borderline — test regresi: koordinat jauh tetap diterima dan jaraknya tercatat.
+:::- Jarak Haversine ke site dihitung backend (PHP), disimpan sebagai distance_m (informasi); accuracy GPS tersimpan sebagai accuracy_m pada record (PRD:653, BR-02); TIDAK ada penolakan radius/geofence/borderline — test regresi: koordinat jauh tetap diterima dan jaraknya tercatat.
 ::- Status record: NOT_CHECKED_IN → CHECKED_IN → COMPLETED; hari tanpa absen = tidak ada record (bukan job ABSENT, bukan klasifikasi EARLY/ON_TIME/LATE/EARLY_CLOCK_OUT, tanpa late_minutes) — test regresi: field/enum klasifikasi lama tidak muncul.
 ::- Test regresi scope terhapus: window jam 05:00–11:00 / 16:00–23:59, kalender kerja/holiday/override/EFFECTIVE_WORKING_DAY, periode 21–20, Attendance Request — endpoint/entitas lama harus tidak ada (404/route missing), bukan sekadar tidak dipakai.
 ::- Timezone site (WIB/WITA/WIT) menghasilkan work_date_local dan penampilan waktu lokal yang benar; record menyimpan timezone snapshot; timestamp tetap UTC canonical.
@@ -41,8 +41,9 @@ Seluruh test di bawah diimplementasikan sebagai Pest feature test (request → r
 ### Daily Report
 
 ```text
-::- Draft dibuat untuk hari kerja terkait; DRAFT tidak punya nomor report; nomor CMX.WR.YYYYMM.SEQUENCE dialokasikan hanya ketika submit sukses; sequence global (PostgreSQL SEQUENCE) atomik dan tidak reset; YYYYMM memakai site local date saat submit.
-::- Submit concurrency: sequence unique global atomik (parallel submit test).
+:::- Draft dibuat untuk hari kerja terkait; DRAFT tidak punya nomor report; nomor CMX.WR.YYYYMM.SEQUENCE dialokasikan hanya ketika submit sukses; sequence global (PostgreSQL SEQUENCE) atomik dan tidak reset; YYYYMM memakai site local date saat submit.
+:::- Format nomor: SEQUENCE zero-padding minimal 4 digit (0110 tetap "0110"), bukan cap — sequence >= 10000 tetap valid dan formatnya melebar alami (CMX.WR.YYYYMM.10000, tanpa pemotongan/overflow); test batas tepat 9999 → 10000.
+:::- Submit concurrency: sequence unique global atomik (parallel submit test).
 ::- Snapshot: header menyimpan checklist_version_id + snapshot JSONB (definisi checklist + site + EOS + network links); report lama tetap konsisten setelah checklist baru dipublish.
 ::- SUBMITTED immutable kecuali reopen.
 ::- Reopen: authority Supervisor/Super Admin (permission report.reopen); reason wajib; maksimum 7 hari kalender setelah submit; resubmit menambah revision tanpa mengubah nomor; transisi status diaudit (activitylog).
@@ -140,7 +141,7 @@ Rules divalidasi backend FormRequest/service dengan implementasi eksplisit per r
 ### Notification
 
 ```text
-::- Event generation untuk 3 jenis event utama: report reopened (DAILY_REPORT_REOPENED), attachment rejected (ATTACHMENT_REJECTED), export selesai (EXPORT_COMPLETED) masing-masing menghasilkan notification database Laravel untuk recipient yang benar.
+:::- Event generation untuk 2 event tersisa: report reopened (DAILY_REPORT_REOPENED), attachment rejected (ATTACHMENT_REJECTED) masing-masing menghasilkan notification database Laravel untuk recipient yang benar; tidak ada event export selesai (export sinkron/streamed).
 ::- Test regresi: event attendance-request tidak ada (modul dihapus).
 ::- Mark read hanya untuk notification milik recipient; read_at terisi; idempotent; notification user lain => 404/403.
 ::- Notification bukan authority: perubahan source record dan audit tetap menjadi sumber kebenaran; notifikasi tidak memuat secret/binary.
@@ -150,12 +151,12 @@ Rules divalidasi backend FormRequest/service dengan implementasi eksplisit per r
 ### Export
 
 ```text
-::- Tiga format: Excel (xlsx styled — header bold, border, lebar kolom auto, judul+periode header, filename dinamis), PDF formal (header instansi, siat cetak), CSV (data mentah).
+:::- Tiga format: Excel (xlsx styled — header bold, border, lebar kolom auto, judul+periode header, filename dinamis), PDF formal (header instansi, siap cetak), CSV (data mentah).
 ::- Kustomisasi: pilih kolom (checkbox per kolom), filter periode/site/status/EOS.
 ::- Preset per user: simpan preset, dipakai ulang, hanya milik user tersebut (BOLA test).
 ::- Sinkron (streamed response); audit event ditulis sebelum stream dimulai: actor, role, tipe data, filter, scope, format, timestamp, outcome.
 ::- Privacy visibility di-enforce: Manager tidak boleh export raw selfie/precise GPS/sensitive attachment; pelanggaran scope => 403 EXPORT_SCOPE_FORBIDDEN.
-::- Export hanya Super Admin dan Manager sesuai scope/filter.
+:::- Export sesuai matriks role PRD §4: Super Admin penuh; Manager ringkasan lintas-site sesuai scope; Supervisor site scope; HR kehadiran sesuai otorisasi; EOS tidak bisa export. Test role: export Supervisor (site scope) sukses untuk data dalam scope-nya; export HR data kehadiran sesuai otorisasi sukses sedangkan data non-kehadiran (report/inventory) ditolak; pelanggaran scope tetap 403 EXPORT_SCOPE_FORBIDDEN.
 ```
 
 ### Role visibility dan export scope
@@ -173,7 +174,7 @@ Rules divalidasi backend FormRequest/service dengan implementasi eksplisit per r
 | Authentication | Generic login failure, disabled account, dua counter independen per identifier DAN per IP (RateLimiter, window/TTL 15 menit), lockout 15 menit saat SALAH SATU counter capai 5, identifier tak dikenal hanya menaikkan counter IP (anti-enumeration, response tetap error generik), login sukses mereset counter identifier user, lockout diaudit, password/session revoke |
 | Session/CSRF | Driver database; idle timeout 30 menit, absolute timeout 8 jam, session regenerate saat login/password change, revoke saat logout/reset/disable, cookie Secure+HttpOnly+SameSite=Lax, CSRF Laravel pada semua route mutasi (token terikat session, invalid saat regenerate), login Origin allowlist (mismatch tolak / absen terima) |
 | Rate limit non-login | Check-in/out 30/min/user, upload 20/min/user, submit report 10/min/user, approve/reject/resolve/reopen 60/min/user, analytics/export 30/min/user (key user_id auth); 429 + Retry-After |
-| must_change_password gating | Flag aktif (setelah reset Super Admin): semua mutasi selain ganti password ditolak middleware must_change_password (read/GET tetap boleh); change password sukses merevoke session lain, meregenerate session saat ini, meng-clear flag, mengaudit PASSWORD_CHANGED; shared props halaman mengekspos flag |
+| must_change_password gating | Flag aktif (setelah reset Super Admin ATAU user baru dipaksa ganti password saat login pertama — PRD:591): semua mutasi selain ganti password ditolak middleware must_change_password (read/GET tetap boleh); change password sukses merevoke session lain, meregenerate session saat ini, meng-clear flag, mengaudit PASSWORD_CHANGED; shared props halaman mengekspos flag |
 | RBAC | Role matrix per route/action untuk lima role (spatie permission + Policy) |
 | BOLA/IDOR | EOS mengakses record/report/finding/attachment/inventory milik EOS atau site lain harus gagal (403/404) |
 | Mass assignment | Field `role`, `site_id`, `status`, `report_number`, `normalized_kbps`, `created_by` tidak bisa di-set client (FormRequest allowlist + `$fillable`) |
@@ -200,7 +201,7 @@ Menggantikan contract test REST/OpenAPI lama:
 | Journey | Mandatory scenario |
 |---|---|
 | EOS login | Login, session expiry, re-login, unauthorized route, lockout, must_change_password flow (reset oleh Super Admin → dipaksa ganti → mutasi lanjut) |
-| Check-in | Success (selfie + GPS mocked, status CHECKED_IN, jarak tercatat sebagai informasi), koordinat jauh tetap diterima (tanpa geofence), upload selfie retry, second check-in ALREADY_CHECKED_IN, kamera/overlay panduan wajah |
+| Check-in | Success (selfie + GPS mocked, status CHECKED_IN, jarak tercatat sebagai informasi), koordinat jauh tetap diterima (tanpa geofence), upload selfie retry, second check-in ALREADY_CHECKED_IN, kamera/overlay panduan wajah; fallback FaceDetector API tidak tersedia: overlay panduan tetap tampil dan check-in tetap berfungsi penuh tanpa deteksi wajah (progressive enhancement — PRD:654/PRD:616) |
 | Daily Report | Create draft, section evidence required, checklist rules validation jump, submit/report number/read-only, snapshot konsisten setelah checklist publish baru |
 | Clock-out | Flow kontinu (report belum submit → diarahkan ke form report → submit → clock-out lanjut), gate report belum SUBMITTED ditolak dengan arahan, success (COMPLETED), check-in/clock-out lintas tanggal ditolak |
 | Dual-link | MAIN + SECONDARY konfigurasi tidak lengkap memblokir report; dua speedtest card terpisah; LINK_TRAFFIC Kbps/Mbps |
@@ -208,7 +209,7 @@ Menggantikan contract test REST/OpenAPI lama:
 | Inventory | Mutation post, reversal, negative stock rejection, finding lifecycle, registrasi aset oleh EOS (tag gudang, foto wajib) |
 | Export | Preset simpan/pakai ulang, pilih kolom + filter, tiga format (xlsx styled/PDF/CSV), privacy scope Manager (tidak ada raw selfie/GPS), audit event |
 | Backoffice | Filter/date timezone context (WIB/WITA/WIT), drill-down, access denied vs empty/error states, role visibility boundary |
-| Notification | Event generation (report reopened, attachment rejected, export selesai), list + unread filter, mark read happy path, akses notification milik user lain ditolak, notifikasi tidak menjadi authority (source record tetap diverifikasi) |
+| Notification | Event generation (report reopened, attachment rejected), list + unread filter, mark read happy path, akses notification milik user lain ditolak, notifikasi tidak menjadi authority (source record tetap diverifikasi) |
 
 Split eksekusi E2E:
 

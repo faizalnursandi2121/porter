@@ -54,8 +54,8 @@ Setiap story file harus memuat blok:
 ## Contract
 - Routes: (path + method + nama halaman Inertia dari api-contract.md, exact)
 - FormRequest/validation: (aturan validasi + error copy dari api-contract.md §17)
-- DB objects: (tabel/kolom dari docs/erd.md)
-- Enums: (dari docs/data-dictionary.md §12)
+- DB objects: (tabel/kolom dari Docs/erd.md)
+- Enums: (dari Docs/data-dictionary.md §12)
 - Policies/scope: (Policy + ScopeService; visibility matrix)
 - Audit: (event activity_log apa yang wajib dicatat)
 - ADR terkait: (nomor)
@@ -63,7 +63,7 @@ Setiap story file harus memuat blok:
 
 ## 4a. Story file convention (path & template)
 
-**Path**: `docs/stories/{EPIC}/ST-x.yz.md` — contoh `docs/stories/E2/ST-2.02a.md`, `docs/stories/E3/ST-3.09b.md`. `{EPIC}` = kode epic backlog (E1–E7). Story ID backlog (ST-x.yz termasuk suffix huruf) adalah **authoritative**; alur eksekusi §3 hanya ilustratif, bukan sumber ID.
+**Path**: `Docs/stories/{EPIC}/ST-x.yz.md` — contoh `Docs/stories/E2/ST-2.02a.md`, `Docs/stories/E3/ST-3.09b.md`. `{EPIC}` = kode epic backlog (E1–E7). Story ID backlog (ST-x.yz termasuk suffix huruf) adalah **authoritative**; alur eksekusi §3 hanya ilustratif, bukan sumber ID.
 
 Template lengkap per story file (WAJIB):
 
@@ -71,7 +71,7 @@ Template lengkap per story file (WAJIB):
 # Story — {ID} ({Type})
 
 ## AC (verbatim dari backlog)
-(Salin verbatim kolom Acceptance criteria baris story di docs/backlog.md — jangan parafrase.)
+(Salin verbatim kolom Acceptance criteria baris story di Docs/backlog.md — jangan parafrase.)
 
 ## Contract
 (Blok Contract per §4: Routes, FormRequest/validation, DB objects, Enums, Policies/scope, Audit, ADR terkait.)
@@ -83,10 +83,10 @@ Template lengkap per story file (WAJIB):
 (Depends on dari backlog + catatan paralel-safe.)
 
 ## Test expectation
-(Boundary, E2E smoke vs regression sesuai docs/test-strategy.md.)
+(Boundary, E2E smoke vs regression sesuai Docs/test-strategy.md.)
 
 ## Reference docs
-(Nomor FR docs/prd.md; screen ID docs/ux.md §9; ADR; route/halaman api-contract.md; section docs/erd.md/data-dictionary.md.)
+(Nomor FR Docs/prd.md; screen ID Docs/ux.md §9; ADR; route/halaman api-contract.md; section Docs/erd.md/data-dictionary.md.)
 ```
 
 ## 5. Definition of Done per story (dari AGENTS.md §2, delivery-workflow.md §8 & backlog DoD)
@@ -94,7 +94,7 @@ Template lengkap per story file (WAJIB):
 - [ ] Implementasi sesuai kontrak di atas, tanpa deviasi diam-diam
 - [ ] Pest unit/integration test AC story lulus (boundary termasuk); journey user-visible terverifikasi pada aplikasi nyata (web + worker bila terlibat)
 - [ ] Full-stack slice lengkap: migration/model + route/controller/FormRequest + Inertia page dalam satu PR (tanpa mock/MSW yang tersisa)
-- [ ] Authorization & scope object diverifikasi (visibility matrix `docs/security.md`)
+- [ ] Authorization & scope object diverifikasi (visibility matrix `Docs/security.md`)
 - [ ] Audit event (activity_log) untuk mutasi kritis
 - [ ] Formatter/lint/typecheck lulus (Pint, Larastan, Pest, typecheck, build)
 - [ ] Dokumen terkait di-update bila ada deviasi yang di-approve (dengan ADR bila perlu)

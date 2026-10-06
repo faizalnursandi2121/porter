@@ -117,7 +117,7 @@ MVP memakai local account di PostgreSQL. Identifier login adalah email atau empl
 ### 5.4 Password reset dan forced change (`must_change_password`)
 
 - Reset password MVP dilakukan oleh Super Admin sesuai permission dan audit trail; pengiriman reset token via email/SMTP ditunda dan bukan bagian MVP.
-- Super Admin menetapkan password sementara; sistem memaksa user mengganti password saat login berikutnya setelah reset (`must_change_password=true`).
+- Flag `must_change_password` juga di-set `true` saat Super Admin membuat user baru (PRD §9: user baru/user yang direset oleh Super Admin dipaksa mengganti password pada login berikutnya); alur forced change identik dengan alur reset.
 - Mekanisme forced change lengkap:
   - Flag `users.must_change_password` di-set `true` oleh reset password Super Admin; flag (beserta `password_changed_at`) dipassing ke halaman Inertia (shared props) agar UI mengarahkan user ke alur ganti password.
   - Route self-service ganti password (POST, FormRequest `old_password` + `new_password` 12–128 karakter; CSRF required).
@@ -330,7 +330,7 @@ Tidak ada header `Idempotency-Key` generik pada MVP; perlindungan duplikat melek
 - Tidak ada malware scan (ClamAV dihapus — ADR-044): risiko diterima; mitigasi: validasi MIME/magic-byte, batas ukuran, decode aman, akses terotorisasi + audit.
 - File `REJECTED` atau corrupt tidak dapat dipakai sebagai evidence final atau dipreview; status tersebut diikuti audit event.
 - Tolak nama/path yang mengandung traversal atau karakter berbahaya; nama asli hanya sebagai metadata ter-sanitasi.
-- Terapkan batas file count, total size, request timeout, dan disk quota/alert operasional.
+- Terapkan batas file count, total size, request timeout, dan alert disk global (health endpoint/log) — tanpa kuota/alert storage per-site.
 - Job image memakai Imagick dengan timeout dan resource limits; worker = container/service terpisah `php artisan queue:work`.
 - File sementara (mis. job thumbnail gagal berkali-kali) dibersihkan scheduled command maksimum tujuh hari.
 
@@ -545,7 +545,7 @@ Password baseline     : Min 12, max 128, block common/compromised, no forced per
 MFA                   : Deferred; architecture ready for future TOTP/passkey via Fortify
 Session               : Driver database (tabel sessions), cookie Secure+HttpOnly+SameSite=Lax, idle 30 m / absolute 8 h, regenerate on login/password change, revoke saat logout/reset/disable
 Login protection      : Two independent RateLimiter counters per identifier AND per IP; window/TTL 15 min; threshold 5 on EITHER counter triggers 15-min lockout; unknown identifier raises IP counter only (anti-enumeration); successful login resets that user's identifier counter; lockout audited
-Forced change         : users.must_change_password flag (set oleh reset Super Admin); selama aktif middleware must_change_password menolak semua mutasi selain ganti password (read tetap boleh); change password sukses merevoke session lain + meregenerate session + meng-clear flag + mengaudit PASSWORD_CHANGED
+Forced change         : users.must_change_password flag (set oleh reset Super Admin DAN saat pembuatan user baru oleh Super Admin); selama aktif middleware must_change_password menolak semua mutasi selain ganti password (read tetap boleh); change password sukses merevoke session lain + meregenerate session + meng-clear flag + mengaudit PASSWORD_CHANGED
 CSRF                  : Laravel VerifyCsrfToken (token terikat session) — cookie XSRF-TOKEN + header X-CSRF-TOKEN otomatis via Inertia; invalid saat session regenerate/revoke; login route + Origin allowlist (present + mismatch reject, absent accept)
 Authorization         : spatie/laravel-permission (permission code, seed-only) + Laravel Policy per model + ScopeService (EOS assignment aktif; non-EOS semua site aktif) + sensitive data visibility matrix
 Attendance integrity  : Server timestamp UTC + unique constraint EOS+site+tanggal + selfie + jarak Haversine disimpan sebagai informasi + audit (bukti kehadiran; disiplin ditangani vendor)

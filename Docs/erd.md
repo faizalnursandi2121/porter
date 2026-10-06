@@ -43,7 +43,8 @@ erDiagram
     ASSETS ||--o{ ASSET_STATUS_HISTORY : records
     SITES ||--o{ INVENTORY_STOCK : stocks
     INVENTORY_ITEMS ||--o{ INVENTORY_STOCK : defines
-    INVENTORY_STOCK ||--o{ INVENTORY_TRANSACTIONS : mutates
+    SITES ||--o{ INVENTORY_TRANSACTIONS : scopes
+    INVENTORY_ITEMS ||--o{ INVENTORY_TRANSACTIONS : concerns
     SITES ||--o{ INVENTORY_FINDINGS : raises
     USERS ||--o{ INVENTORY_FINDINGS : reports
     ATTACHMENTS ||--o{ INVENTORY_FINDINGS : evidences
@@ -151,7 +152,7 @@ Master link jaringan dual-link per site. Setiap site aktif wajib punya tepat sat
 | created_by_user_id | uuid | FK → users |
 | created_at, updated_at | timestamptz | Not null |
 
-Constraint: partial unique index `unique(site_id, role) where active = true` — tepat 1 MAIN + 1 SECONDARY aktif per site aktif. Konfigurasi link disnapshot ke Daily Report (`network_links_snapshot`) saat submit.
+Constraint: partial unique index `unique(site_id, role) where active = true` — tepat 1 MAIN + 1 SECONDARY aktif per site aktif. Konfigurasi link disnapshot ke Daily Report (`snapshot.network_links`) saat submit.
 
 ### `eos_site_assignments`
 
@@ -296,10 +297,7 @@ Konvensi yang dipertahankan dari v1:
 | work_date_local | date | Not null; tanggal lokal site |
 | site_timezone | varchar(64) | Not null; snapshot |
 | checklist_version_id | uuid | FK → checklist_versions; snapshot versi yang dipakai |
-| checklist_snapshot | jsonb | Snapshot struktur section/item/option/rule versi checklist saat submit |
-| site_snapshot | jsonb | Snapshot site (nama, kode, timezone, koordinat) saat submit |
-| eos_snapshot | jsonb | Snapshot identitas EOS saat submit |
-| network_links_snapshot | jsonb | Snapshot konfigurasi MAIN/SECONDARY link site saat submit |
+| snapshot | jsonb | Snapshot saat submit — satu kolom JSONB berisi sub-objek `checklist` (struktur section/item/option/rule versi checklist yang dipakai), `site`, `eos`, dan `network_links` (struktur rinci: data-dictionary.md §6.1) |
 | status | varchar(32) | `DRAFT`, `SUBMITTED`, `REOPENED`, `VOIDED` |
 | revision | integer | Default 0; bertambah pada setiap resubmit setelah reopen; nomor tidak berubah |
 | submitted_at | timestamptz | Nullable; server time UTC |
@@ -394,10 +392,9 @@ Aset didaftarkan oleh **EOS** saat barang datang dari gudang Comtronics (bukan S
 | serial_number | varchar(160) | Nullable; wajib bila tersedia pada perangkat |
 | status | varchar(32) | `IN_USE`, `SPARE`, `RETURNED`, `DAMAGED`, `LOST`, `DISPOSED` |
 | installation_location | varchar(255) | Nullable: gedung/lantai/ruang/rack |
-| acquired_on | date | Nullable |
-| installed_on | date | Nullable |
 | notes | text | Nullable |
-| created_by_user_id | uuid | FK → users; EOS pendaftar |
+| registered_by_user_id | uuid | FK → users; EOS pendaftar saat registrasi |
+| registered_at | timestamptz | Not null; waktu registrasi |
 | created_at, updated_at | timestamptz | Not null |
 | deleted_at | timestamptz | Nullable |
 
@@ -441,11 +438,11 @@ Master material/sparepart yang dikelola berbasis kuantitas.
 |---|---|---|
 | id | uuid | PK |
 | site_id | uuid | FK → sites |
-| inventory_item_id | uuid | FK → inventory_items |
+| item_id | uuid | FK → inventory_items |
 | quantity_on_hand | numeric(18,3) | Not null, default 0; **tidak boleh negatif** (check constraint) |
 | created_at, updated_at | timestamptz | Not null |
 
-Unique: `(site_id, inventory_item_id)`.
+Unique: `(site_id, item_id)`.
 
 ### `inventory_transactions`
 
@@ -454,7 +451,8 @@ Ledger mutasi stok — immutable; perubahan salah diatasi dengan reversal, bukan
 | Kolom | Tipe | Constraint/Keterangan |
 |---|---|---|
 | id | uuid | PK |
-| stock_id | uuid | FK → inventory_stock |
+| site_id | uuid | FK → sites |
+| item_id | uuid | FK → inventory_items; pasangan `(site_id, item_id)` merujuk baris unik `inventory_stock` |
 | transaction_type | varchar(32) | `RECEIPT`, `USAGE`, `ADJUSTMENT`, `DAMAGED`, `LOST`, `RETURN`, `TRANSFER_IN`, `TRANSFER_OUT` |
 | quantity_delta | numeric(18,3) | Tidak boleh 0; tanda konsisten dengan type |
 | quantity_before | numeric(18,3) | Not null |
@@ -477,7 +475,7 @@ Temuan inventaris yang dilaporkan EOS (atau actor berwenang) untuk site-nya; ter
 | site_id | uuid | FK → sites; EOS tidak boleh memilih site bebas (derived dari assignment aktif) |
 | reported_by_user_id | uuid | FK → users; immutable |
 | asset_id | uuid | FK → assets, nullable; bila ada wajib milik site yang sama |
-| stock_id | uuid | FK → inventory_stock, nullable; bila ada wajib milik site yang sama |
+| stock_item_id | uuid | FK → inventory_stock, nullable; bila ada wajib milik site yang sama |
 | finding_type | varchar(64) | `ASSET_DAMAGED`, `ASSET_MISSING`, `ASSET_DATA_MISMATCH`, `STOCK_LOW`, `STOCK_DAMAGED`, `ASSET_REGISTRATION_NEEDED`, `OTHER` |
 | description | text | Not null; sanitized bounded text |
 | status | varchar(32) | `OPEN`, `UNDER_REVIEW`, `RESOLVED`, `CLOSED`, `REJECTED` |
@@ -506,10 +504,11 @@ Indeks: `(site_id, status)`. Evidence ditautkan via `attachment_links` context `
 | size_bytes | bigint | Not null; <= 10 MB |
 | storage_key | text | Unique, not null; server-generated; file pada local disk private `storage/app` |
 | checksum_sha256 | char(64) | Not null; dihitung saat validasi sinkron |
-| lifecycle_status | varchar(32) | `AVAILABLE`, `REJECTED` |
+| status | varchar(32) | `AVAILABLE`, `REJECTED` |
 | rejection_reason | text | Nullable; untuk `REJECTED` |
 | metadata | jsonb | EXIF yang aman, dimensi, dan metadata lainnya |
 | uploaded_by_user_id | uuid | FK → users |
+| uploaded_at | timestamptz | Not null; waktu upload |
 | created_at, updated_at | timestamptz | Not null |
 
 Pipeline: **validasi sinkron dalam request** (magic byte, size, hash SHA-256, decode-safe) → lolos = langsung `AVAILABLE`; gagal = `REJECTED` (tidak tersedia ke user biasa, audit event via `activity_log`). Thumbnail/preview dibuat **queued job** (Intervention Image; Imagick + libheif untuk HEIC). Original immutable/private; semua download via controller terkontrol, diotorisasi, dan diaudit. Tidak ada malware scan (ADR-044 tetap).
@@ -586,11 +585,11 @@ Tabel notifications bawaan Laravel (database channel) + polling; in-app only (em
 | read_at | timestamptz | Nullable |
 | created_at, updated_at | timestamptz | Not null |
 
-Event MVP: report reopened, attachment rejected, export selesai. Notification bukan authority — source record dan activity log adalah authority.
+Event MVP: report reopened, attachment rejected. Notification bukan authority — source record dan activity log adalah authority.
 
 ### `export_presets`
 
-Preset export per user (dipakai ulang): pilihan kolom + filter.
+Preset export per user (dipakai ulang): pilihan format + kolom + filter.
 
 | Kolom | Tipe | Constraint/Keterangan |
 |---|---|---|
@@ -598,11 +597,12 @@ Preset export per user (dipakai ulang): pilihan kolom + filter.
 | user_id | uuid | FK → users; pemilik preset |
 | name | varchar(100) | Not null |
 | data_type | varchar(64) | Not null; `ATTENDANCE`, `DAILY_REPORT`, `INVENTORY`, `ASSET`, `INVENTORY_FINDING` |
+| format | varchar(16) | Not null; `XLSX`, `PDF`, `CSV` — format output tersimpan pada preset |
 | columns | jsonb | Not null; daftar kolom terpilih (checkbox per kolom) |
 | filters | jsonb | Not null; filter periode/site/status/EOS |
 | created_at, updated_at | timestamptz | Not null |
 
-Unique: `(user_id, name)`. Export berjalan **sinkron (streamed)** dengan audit event ke `activity_log` sebelum stream dimulai; format: Excel (xlsx styled), PDF formal, CSV (data mentah). Privacy visibility di-enforce — Manager tidak boleh export raw selfie/precise GPS/sensitive attachment. Tidak ada tabel `export_jobs`.
+Unique: `(user_id, name)`. Export berjalan **sinkron (streamed)** dengan audit event ke `activity_log` sebelum stream dimulai; format: Excel (xlsx styled), PDF formal, CSV (data mentah). Export sesuai matriks role `prd.md` §4: Super Admin penuh; Manager (lintas-site scope), Supervisor (site scope), HR (hanya `ATTENDANCE`, kehadiran sesuai otorisasi). Privacy visibility di-enforce — Manager tidak boleh export raw selfie/precise GPS/sensitive attachment. Tidak ada tabel `export_jobs`.
 
 ### Legal hold (deferred)
 
@@ -650,7 +650,7 @@ Job wajib idempotent (at-least-once): job thumbnail attachment, job notifikasi, 
 - `daily_report_answers(daily_report_id)` dan indeks JSON sesuai kebutuhan analitik.
 - `site_network_links(site_id, role) where active = true` sebagai partial unique index.
 - `assets(site_id, status, category_id)` untuk inventory site.
-- `inventory_stock(site_id, inventory_item_id)` sebagai unique index.
+- `inventory_stock(site_id, item_id)` sebagai unique index.
 - `inventory_findings(site_id, status)` untuk daftar finding unresolved per site.
 - `notifications(notifiable_type, notifiable_id, read_at)`.
 - `activity_log(subject_type, subject_id, created_at DESC)` dan `activity_log(causer_type, causer_id, created_at DESC)` (via package index).

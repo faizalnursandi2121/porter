@@ -174,7 +174,7 @@ Constraint basis data: `unique(site_id, role) where active = true`. Konfigurasi 
 
 ### Checklist master terversi
 
-- Checklist tidak di-hard-code sebagai kolom permanen form; menggunakan master data terversi: satu tabel `checklist_versions` (version, status, struktur JSON berisi section/item/option/rule) untuk template `DAILY_SITE_REPORT`.
+- Checklist tidak di-hard-code sebagai kolom permanen form; menggunakan master data terversi: tabel `checklist_templates` (identitas template, satu baris `DAILY_SITE_REPORT` global pada MVP) + tabel `checklist_versions` (version, status, struktur JSON berisi section/item/option/rule, FK `template_id`) untuk template `DAILY_SITE_REPORT`.
 - Lifecycle version: `DRAFT` → `PUBLISHED` → `SUPERSEDED`/`RETIRED`.
 - Hanya Super Admin yang dapat publish; versi published immutable.
 - Satu template global `DAILY_SITE_REPORT` pada MVP; future-ready untuk scope site/region namun belum diterapkan.
@@ -445,7 +445,7 @@ Notification MVP in-app only, memakai tabel `notifications` Laravel (database ch
 
 - Daily Report reopened.
 - Attachment rejected (gagal validasi sinkron).
-- Export selesai.
+- (Dihapus: export berjalan sinkron/streamed — FR-16 — tidak ada momen selesai yang perlu dinotifikasi.)
 
 Notification bukan authority; source record dan audit adalah authority. Email/WhatsApp out of scope.
 
@@ -536,6 +536,7 @@ NOT_CHECKED_IN → CHECKED_IN → COMPLETED
 | Section evidence | 5 |
 | Item evidence | 5 |
 | Inventory mutation | 5 |
+| Inventory finding | 5 |
 | Check-in selfie | 1 |
 | Clock-out selfie | 1 |
 

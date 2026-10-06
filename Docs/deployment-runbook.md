@@ -39,7 +39,7 @@ DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 SESSION_DRIVER=database
 QUEUE_CONNECTION=database
 CACHE_STORE=database
-FILESYSTEM_DISK=local
+FILESYSTEM_DISK=private
 ```
 
 `APP_KEY` wajib (rotasi dicatat dan diuji lewat prosedur operasional). Enkripsi at-rest ditangani infrastruktur (disk/backup encryption); tidak ada envelope encryption application-level pada MVP. Tidak ada konfigurasi Redis (`REDIS_*`) maupun ClamAV (`CLAMD_*`) — driver session/cache/queue/rate-limit/atomic-lock memakai `database` (ADR-047); attachment divalidasi sinkron tanpa malware scan (ADR-044).
@@ -77,7 +77,7 @@ Production deploy (only from branch `production`, after staging gate passes):
 4. Build image (termasuk `npm run build` asset Vite) dari branch `production` dan jalankan service `migrate` (`php artisan migrate --force`, exit-on-success) SEBELUM rollout app/worker/scheduler baru; migration failure aborts the rollout (expand-migrate-contract; zero-downtime).
 5. Deploy `laravel.test` (web), `worker`, `scheduler` ke production.
 6. Wait for PostgreSQL readiness checks dan health endpoint `/up` mengembalikan 200.
-7. Run smoke test pada domain production: login, check-in (selfie+GPS), submit report, clock-out gate, export.
+7. Run smoke test pada domain production: login, check-in (selfie+GPS), submit report, clock-out gate, export (browser matrix sesuai §8: Android Chrome, iOS Safari, desktop Chrome/Edge/Firefox dua major terbaru).
 8. Verify deployment logs, migration result, version, and audit-sensitive flow (activity_log).
 9. Mark deployment result in release record.
 ```
@@ -123,7 +123,7 @@ Restore drill (bulanan, di staging): provision isolated environment → restore 
 - No ClamAV/malware scan: the attachment pipeline validates type/format/size/decode + SHA-256 synchronously in the request, and a file that passes validation becomes `AVAILABLE` directly (ADR-044; ADR-053); thumbnail/preview WebP dihasilkan queued job di worker.
 - Production pilot/go-live requires the production go-live checklist in `release-checklist.md` to be complete.
 
-- Setiap promotion menjalankan smoke-E2E (login → check-in selfie+GPS → report → submit → clock-out gate + failure state utama: gate report, attachment rejected, must_change_password) sebagai bagian staging gate; full regression E2E hanya per release (lihat `test-strategy.md` §6).
+- Setiap promotion menjalankan smoke-E2E (login → check-in selfie+GPS → report → submit → clock-out gate + failure state utama: gate report, attachment rejected, must_change_password) sebagai bagian staging gate; browser smoke matrix = dua major version terbaru Android Chrome, iOS Safari, dan desktop Chrome/Edge/Firefox (PRD:616); full regression E2E hanya per release (lihat `test-strategy.md` §6).
 
 ClamAV provisioning is no longer part of the production gate (ADR-044): no `clamav` service, `clam_db` volume, `CLAMD_HOST`/`CLAMD_PORT` wiring, EICAR test, or fail-closed scanner drill.
 

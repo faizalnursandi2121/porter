@@ -99,7 +99,7 @@ Topologi di atas berlaku sama untuk staging dan production. Local development me
 | RBAC | spatie/laravel-permission + Policies | To install | 5 role fixed + permission; Laravel Policy per model; ScopeService untuk scope site |
 | Audit | spatie/laravel-activitylog | To install | Tabel activity_log untuk audit event aplikasi di titik kritis eksplisit |
 | Authentication | Fortify (starter kit) | Ter-install | Login, reset, lockout, dan profil bawaan; konfigurasi sesuai bagian 8 |
-| Passkeys | laravel/passkeys | Ter-install | Opsi autentikasi passwordless; tidak wajib pada MVP |
+| Passkeys | laravel/passkeys | Ter-install (disabled) | Out-of-scope MVP: package ada dari starter kit tapi fitur passkey tidak diaktifkan (nullable/disabled-optional); autentikasi MVP = email/employee code + password (lihat security.md §5.1) |
 | Password hashing | Argon2id (bcrypt default Laravel di-override) | Final | Hash password server-side dengan salt acak unik |
 | Session | Secure HttpOnly cookie + database driver | Final | Session state di tabel sessions PostgreSQL |
 | Rate limit / lock | Laravel rate limiter + cache lock (database driver) | Final | Tanpa Redis; atomic lock via cache lock database |
@@ -222,8 +222,7 @@ Background job memakai Laravel Queue dengan driver `database` (tabel `jobs` + `f
 Tanggung jawab job terjadwal/queued:
 
 - Thumbnail/preview WebP attachment (Intervention Image + Imagick/libheif).
-- Notifikasi in-app (tabel notifications, database channel) — report reopened, attachment rejected, export selesai.
-- Materialisasi/refresh rekap dan agregasi analitik.
+- Notifikasi in-app (tabel notifications, database channel) — report reopened, attachment rejected.
 - Pembersihan file temporary dan cleanup sesuai retention policy.
 
 Aturan:
@@ -239,7 +238,7 @@ Aturan:
 
 MVP menggunakan akun lokal dalam PostgreSQL; SSO/external identity provider tidak digunakan pada fase ini.
 
-Identitas login: email atau employee code + password. Tambah: passkeys (laravel/passkeys, ter-install) sebagai opsi; reset password oleh Super Admin; tanpa pengiriman reset token via email pada MVP.
+Identitas login: email atau employee code + password. Reset password oleh Super Admin; tanpa pengiriman reset token via email pada MVP. Passkeys (laravel/passkeys, ter-install) out-of-scope MVP — package tetap ada sebagai dependency starter kit namun fitur dinonaktifkan (disabled-optional, nullable); tidak dipakai pada alur autentikasi MVP.
 
 Konfigurasi keamanan (final):
 
@@ -400,7 +399,7 @@ cmx-sekolah-rakyat/          # single Laravel app (React starter kit base)
 ├── storage/app/             # private disk (volume)
 ├── docker-compose.yml       # Sail
 ├── .gitlab-ci.yml
-├── docs/                    # prd.md, erd.md, tech-stack.md, adr/
+├── Docs/                    # prd.md, erd.md, tech-stack.md, adr/
 └── ...
 ```
 
@@ -439,7 +438,7 @@ DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 SESSION_DRIVER=database
 QUEUE_CONNECTION=database
 CACHE_STORE=database
-FILESYSTEM_DISK=local
+FILESYSTEM_DISK=private
 ```
 
 Aturan:
@@ -503,7 +502,7 @@ Setiap environment staging dan production berjalan pada satu server sehingga mem
 | `laravel/framework` 13 | Framework inti |
 | `inertiajs/inertia-laravel` + `@inertiajs/react` (v3, React 19) | Full-stack Inertia |
 | `laravel/fortify` | Autentikasi (login, lockout, reset, profil) |
-| `laravel/passkeys` | Passkey/passwordless opsional |
+| `laravel/passkeys` | Passkey/passwordless — out-of-scope MVP, fitur disabled (dependency starter kit, tidak diaktifkan) |
 | `laravel/wayfinder` | Typed routes ke TypeScript |
 | `tailwindcss` 4 + shadcn/ui + Radix | UI component baseline |
 | `vite` + TypeScript | Build frontend |
@@ -549,7 +548,7 @@ Hal berikut tidak ditetapkan sebagai bagian stack MVP:
 | Beban queue/cache meningkat melebihi database driver | Pisahkan Redis untuk cache/queue (perlu revisi ADR-047) |
 | Database/application butuh isolasi lebih kuat | Pindahkan PostgreSQL ke VM/database server terpisah |
 | Availability requirement meningkat | Multi-node app/worker, reverse proxy/load balancer, PostgreSQL replication, dan disaster recovery |
-| Export volume besar mengganggu request sinkron | Pindahkan export ke queued job + notifikasi selesai |
+| Export volume besar mengganggu request sinkron | Pindahkan export ke queued job + notifikasi selesai (evolusi future, bukan MVP — export MVP sinkron/streamed, tidak ada notifikasi export) |
 
 ## 19. Ringkasan Keputusan Final
 
@@ -562,7 +561,7 @@ Backend       : PHP 8.3+/8.4 + Laravel 13
 Database      : PostgreSQL + Eloquent + migrations (UUID PK operasional)
 Cache/session : Driver database (tanpa Redis)
 Queue         : Laravel Queue database driver + Scheduler; worker container terpisah
-Authentication: Fortify (starter kit) + laravel/passkeys; akun lokal
+Authentication: Fortify (starter kit); akun lokal (email/employee code + password); laravel/passkeys disabled — out-of-scope MVP
 Password      : Argon2id, 12–128, lockout 5/15 menit, must_change_password
 Session       : Secure HttpOnly cookie SameSite=Lax; idle 30m + absolute 8h; driver database
 Authorization : spatie/laravel-permission + Policies + ScopeService (server-enforced)

@@ -21,7 +21,7 @@ Checklist ini adalah gate untuk promotion staging dan production. Semua item yan
 [ ] Pest unit/feature test pass.
 [ ] Frontend typecheck (npm types:check), lint, dan production build (Vite) pass.
 [ ] Migration validation dan DB integration test pass di CI.
-[ ] Smoke-E2E per promotion passes against aplikasi nyata (happy path: login → check-in selfie+GPS mock → isi report → submit → clock-out gate → export; plus failure state utama: report gate, attachment rejected, must_change_password gate; Android Chrome, iOS Safari, desktop Chrome).
+[ ] Smoke-E2E per promotion passes against aplikasi nyata (happy path: login → check-in selfie+GPS mock → isi report → submit → clock-out gate → export; plus failure state utama: report gate, attachment rejected, must_change_password gate; browser: Android Chrome, iOS Safari, dan desktop Chrome, Edge, Firefox — dua major version terbaru, PRD:616).
 [ ] Full regression E2E per release passes (semua journey + boundary + negatif; jadwal mingguan/manual).
 [ ] WIB/WITA/WIT cases tested for changed time-sensitive behavior.
 [ ] Failure/retry/empty/access-denied states tested.

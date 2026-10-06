@@ -2,7 +2,7 @@
 
 **Project:** PORTER (Portal Operasional Terpadu Sekolah Rakyat)
 **Tanggal konsolidasi:** 2026-10-06
-**Sumber keputusan binding:** sesi coaching revisi stack (matriks keputusan `local://decisions.md`, ADR-045–ADR-053)
+**Sumber keputusan binding:** sesi coaching revisi stack (matriks keputusan sesi coaching; implementasi keputusan tersimpan di `prd.md` dan ADR-045–ADR-053)
 
 ## 0. Konteks Revisi
 
@@ -66,4 +66,16 @@ Diverifikasi via audit read-only menyeluruh + perbaikan konsistensi:
 - Semua ADR lama (001–044) tidak diubah isinya (sejarah); peta supersession ada di `adr/README.md`.
 - `prd.md` = PRD canonical tunggal; tidak ada file PRD lain.
 - `api-contract.md` = kontrak halaman/aksi Inertia (bukan REST); tidak ada openapi.yaml.
-- Sumber keputusan coaching tersimpan di `local://decisions.md` (matriks final).
+- Matriks keputusan sesi coaching diimplementasikan penuh di dokumen-dokumen ini; referensi normatif = `prd.md` + ADR-045–ADR-053.
+
+## 5. Audit dan perbaikan konsistensi tahap-2 (2026-10-06, pasca-audit menyeluruh)
+
+Audit lintas 18 dokumen + 53 ADR (4 auditor paralel) menemukan inkonsistensi residual; semua diperbaiki dan diverifikasi ulang:
+
+1. **Role matrix PRD §4 dipulihkan di semua dokumen turunan**: Export (Supervisor site scope, HR kehadiran sesuai otorisasi) di api-contract/ux/ui-spec/test-strategy/backlog/data-dictionary; assignment EOS = Supervisor+SA (api-contract route + matrix); site/network-link write = SA only (api-contract); kategori inventaris = SA+Manager+Supervisor; audit log = Manager/Supervisor ringkasan + HR terbatas kehadiran; mutasi stok post = Supervisor (ux §6.5, ui-spec E-22; menu "Mutasi Stok" EOS dihapus); Manager checklist draft-capable (ux §8.3).
+2. **Fitur sisa model lama dihapus**: quota storage 2GB/site (backlog ST-6.06, operations-runbook §9, api-contract §15; ADR-028 ditandai amended di index); notifikasi "Export selesai" (prd FR-15, architecture.md, erd, dict, ux, backlog ST-6.04, test-strategy, tech-stack; export sinkron tidak punya momen selesai); referensi `decisions.md` dangling di backlog (→ prd.md + ADR-045–053).
+3. **Konflik skema ERD↔Data Dictionary diselesaikan** (keputusan binding): `checklist_templates` + `template_id` FK dipertahankan (dict ditambah, prd §5 diperbarui, architecture §6 disinkronkan); snapshot = 1 kolom JSONB `snapshot` (erd diubah); snapshot timing = saat submit; `inventory_transactions` keying = `site_id`+`item_id`; ENUM answer = `option_code`; `asset_status_history` ditambahkan ke dict §8.3; `assignment_id`/`attendance_id` ditambahkan ke dict §6.1; `users.name` (bukan full_name) di seluruh dokumen; `attachments.status` + `uploaded_at`; `location_captured_at` dihapus (tanpa freshness gate); assets `registered_by_user_id`+`registered_at`, `acquired_on`/`installed_on` dihapus; `export_presets.format` dipertahankan keduanya; `report_sequence` stored column dihapus (PostgreSQL SEQUENCE only); FK naming `item_id`/`stock_item_id`; checklist JSON naming mengikuti erd; activity event `SITE_COORDINATES_UPDATED`.
+4. **ADR index**: ADR-011 ditandai "partially superseded by ADR-046" (window/EARLY_CLOCK_OUT/geofence gate dihapus, report gate tetap); ADR-038 note diperbarui (Attendance Request sudah tidak ada — tidak ada jalur recovery in-system); ADR-028 ditandai amended (quota dihapus).
+5. **Mekanis**: passkeys = out-of-scope MVP (tech-stack 4 lokasi, backlog ST-1.01); `FILESYSTEM_DISK=private` konsisten; must_change_password user baru (security §5.4); browser matrix + Edge/Firefox (deployment-runbook, release-checklist, backlog ST-7.04); typo "siat cetak"; path `docs/` → `Docs/` (bmad-integration, tech-stack); story baru ST-5.10 (kategori inventaris) + ST-2.10 (Leaflet map); test baru: race double-submit check-in, accuracy GPS, sequence ≥10000, fallback FaceDetector, must_change_password user baru; phantom route `/supervisor/analytics` dihapus (ux/ui-spec); enum AP Cloud ditemukan di ux dihapus; 409 → ValidationException redirect (ui-spec); "Local draft" state dihapus (ui-spec); serial_number optional (api-contract/ux/ui-spec konsisten); `attachments.store` PRG redirect (api-contract); notification event 2 nilai konsisten semua dokumen.
+
+Isi file ADR lama (001–044) tetap tidak diubah (sejarah); status/amendment di `adr/README.md` adalah mekanisme resmi (governance ADR).

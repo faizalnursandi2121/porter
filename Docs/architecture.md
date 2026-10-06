@@ -159,10 +159,10 @@ Domain dijelaskan sebagai grup class Laravel (Models + Services/Actions + Polici
 | `Assignment` | Penugasan EOS ke site; satu assignment aktif per EOS | Assignment lifecycle dan one-active constraint | Memindahkan inventaris site |
 | `Attendance` | Check-in/clock-out sebagai bukti kehadiran: selfie + GPS + server timestamp UTC | Attendance lifecycle, jarak Haversine (informasi), unique(EOS+site+tanggal lokal) | Disiplin/late/kehadiran (urusan vendor EOS) |
 | `DailyReport` | Draft, answer, submit/reopen, alokasi report number | Report lifecycle, submit transaction, snapshot | Menentukan master checklist baru |
-| `Checklist` | `checklist_versions`: 1 tabel versi + struktur JSON (section/item/option), publish | Checklist master version, satu template global DAILY_SITE_REPORT | Mengubah report submitted lama |
+| `Checklist` | `checklist_templates` + `checklist_versions` (struktur JSON section/item/option + FK template_id), publish | Checklist master version, satu template global DAILY_SITE_REPORT | Mengubah report submitted lama |
 | `Inventory` | Asset (registrasi oleh EOS, tag/SN gudang), material/sparepart, stock ledger | Asset state, stock ledger/balance | Mengelola attendance |
 | `Attachment` | Metadata, upload validation sinkron, Filesystem disk private, derivative queued | Attachment lifecycle/access association | Menentukan business eligibility attendance/report |
-| `Notification` | Tabel notifications Laravel (database channel) + polling; event report reopened, attachment rejected, export selesai | Delivery dan read state notifikasi | Menjadi authority status business record |
+| `Notification` | Tabel notifications Laravel (database channel) + polling; event report reopened, attachment rejected | Delivery dan read state notifikasi | Menjadi authority status business record |
 | `Export` | Export Excel/PDF/CSV sinkron streamed + preset per user + audit export | Eksekusi export sesuai scope/filter dan audit-nya | Membypass privacy visibility role |
 | `Audit` | `spatie/laravel-activitylog` — activity_log persistence + query | Audit persistence dan read model | Mengizinkan/menolak business action |
 | `Analytics` | Read model/aggregate/listing via Eloquent query + component | Reporting projections | Mengubah source business record |
@@ -381,7 +381,7 @@ Aturan attachment:
 ### 13.2 Job utama
 
 - `GenerateAttachmentThumbnail` — preview/thumbnail WebP (Intervention Image, Imagick+libheif).
-- `SendDatabaseNotification` — notifikasi in-app (event report reopened, attachment rejected, export selesai).
+- `SendDatabaseNotification` — notifikasi in-app (event report reopened, attachment rejected).
 - Cleanup: `storage:prune`/retention sementara, session/cache/queue expired records (terjadwal).
 
 ### 13.3 Scheduler

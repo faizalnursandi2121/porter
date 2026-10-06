@@ -6,7 +6,7 @@
 - Satu aplikasi Laravel 13 + Inertia v3 + React 19: satu dev menulis route, controller, Inertia page, dan test dalam satu story (full-stack); tidak ada Contract Story paralel FE/BE, tidak ada OpenAPI.
 - User-facing capability hanya Done setelah integration/E2E nyata terhadap aplikasi berjalan.
 - Priority: P0 wajib MVP, P1 setelah core stabil, P2 future.
-- Semua acceptance criteria mengacu keputusan final `decisions.md` (Laravel 13 + Inertia, queue database driver tanpa Redis, absensi model bukti kehadiran tanpa window/late/kalender/geofence gate, checklist JSON versioned, attachment validasi sinkron + thumbnail queued, export tiga format dengan preset per user, aset registrasi oleh EOS).
+- Semua acceptance criteria mengacu keputusan final di `Docs/prd.md` dan ADR-045–ADR-053 (Laravel 13 + Inertia, queue database driver tanpa Redis, absensi model bukti kehadiran tanpa window/late/kalender/geofence gate, checklist JSON versioned, attachment validasi sinkron + thumbnail queued, export tiga format dengan preset per user, aset registrasi oleh EOS).
 
 ## 2. Epics
 
@@ -26,7 +26,7 @@
 
 | ID | Type | Story | Acceptance criteria | Depends on |
 |---|---|---|---|---|
-| ST-1.01 | Backend | Laravel app skeleton + starter kit baseline: Fortify, Passkeys, Inertia v3, React 19, Tailwind 4, shadcn/ui, Wayfinder, Pest, Larastan, Pint; konfigurasi session/cache/queue/rate-limit/atomic-lock memakai driver `database` | App boot Inertia page pertama tanpa Redis; semua driver database diverifikasi konfigurasi (tanpa `redis` di konfigurasi runtime); struktur modul sesuai architecture.md | — |
+| ST-1.01 | Backend | Laravel app skeleton + starter kit baseline: Fortify, Inertia v3, React 19, Tailwind 4, shadcn/ui, Wayfinder, Pest, Larastan, Pint; konfigurasi session/cache/queue/rate-limit/atomic-lock memakai driver `database` | App boot Inertia page pertama tanpa Redis; semua driver database diverifikasi konfigurasi (tanpa `redis` di konfigurasi runtime); struktur modul sesuai architecture.md | — |
 | ST-1.02 | DevOps | Docker Compose (Sail) tiga environment local/staging/production, termasuk container/service worker terpisah `php artisan queue:work` dan `php artisan schedule:work`; promotion branch `faizaldev -> staging -> production` | Production deploy hanya dari branch `production`; secrets terpisah per environment; staging tidak memakai raw production data; worker container berjalan terpisah dari app web; health endpoint sederhana hidup | ST-1.01 |
 | ST-1.03 | Data | Migrations + seed mechanism; UUID PK untuk record operasional | Migration tervalidasi di CI; seeder role `spatie/laravel-permission` (5 role fixed, single role per user) + akun admin awal | ST-1.01 |
 | ST-1.04 | CI | Pipeline quality gate (Pest + Larastan + Pint) + attachment fixture suite (JPEG, PNG, WebP, HEIC, HEIF, PDF, rusak, MIME mismatch, oversized) | CI merah bila fixture suite atau quality gate gagal | ST-1.01 |
@@ -43,8 +43,9 @@
 | ST-2.05 | Backend | Checklist master versioned: `checklist_versions` (version, status DRAFT/PUBLISHED/SUPERSEDED/RETIRED, struktur JSON section/item/option/rule) | Satu template global `DAILY_SITE_REPORT`; Super Admin publish; published immutable; perubahan standard rule/option/urutan via master data tanpa release | ST-1.03 |
 | ST-2.06 | Backend | Assignment: satu assignment aktif per EOS; inventaris melekat site | Assignment baru ditolak bila EOS masih punya assignment aktif lain; riwayat assignment tidak boleh dihapus; transisi assignment diaudit | ST-2.03 |
 | ST-2.07 | Frontend | App shell, login, session/access states, must_change_password forced flow | Login dengan error copy generik; session expired → re-login; access denied sesuai role; `must_change_password = true` → layar ganti password wajib, semua halaman lain terblokir middleware | ST-2.01 |
-| ST-2.08 | Frontend | Master Site + Network Link + Assignment screens | Form Site (input IANA timezone terbatas, lat/lng/radius informatif, perubahan wajib reason); form dual-link MAIN/SECONDARY sesuai constraint; state site belum lengkap terlihat jelas; form Assignment EOS dengan validasi client-side satu assignment aktif + pesan error invariant server ditampilkan jelas | ST-2.03, ST-2.04, ST-2.06 |
+| ST-2.08 | Frontend | Master Site + Network Link + Assignment screens | Form Site (input IANA timezone terbatas, lat/lng/radius informatif, perubahan wajib reason); input koordinat site via Leaflet map (react-leaflet) dengan draggable marker + fallback manual lat/lng; form dual-link MAIN/SECONDARY sesuai constraint; state site belum lengkap terlihat jelas; form Assignment EOS dengan validasi client-side satu assignment aktif + pesan error invariant server ditampilkan jelas | ST-2.03, ST-2.04, ST-2.06 |
 | ST-2.09 | Frontend | Checklist template editor/preview | List version + editor/preview struktur JSON; lifecycle DRAFT (Manager/Supervisor) → publish (Super Admin) dengan konfirmasi; published immutable read-only di editor | ST-2.05 |
+| ST-2.10 | Frontend | Leaflet map components (BR-02) | Peta Leaflet (react-leaflet + public OSM tiles untuk development/pilot kecil) untuk input/ubah koordinat site dengan draggable marker, dan review titik check-in/clock-out pada detail attendance (marker per record); peta menampilkan koordinat sebagai informasi, bukan authority kehadiran; fallback input manual lat/lng tetap tersedia | ST-2.03, ST-3.01 |
 
 ### E3 Attendance
 
@@ -88,6 +89,7 @@
 | ST-5.07 | Frontend | Backoffice asset/stock admin | Inventory dashboard/listing aset, detail/create/edit asset, stock item dan histori mutasi; max 5 attachment per mutation | ST-5.01, ST-5.02, ST-5.04 |
 | ST-5.08 | Frontend | Supervisor finding review | Inventory Finding list, review/resolve/reject Finding | ST-5.05 |
 | ST-5.09 | Integration/E2E | Aset registrasi, status 6, mutation post, reversal, negative stock rejection, finding journey | Verifikasi immutability dan reversal; registrasi aset oleh EOS; perubahan status beralasan + audit | ST-5.01–ST-5.08 |
+| ST-5.10 | Backend | Kelola kategori inventaris (kategori aset dan kategori material/sparepart) | CRUD kategori inventaris; role Super Admin + Manager + Supervisor (HR/EOS tidak — matriks PRD §4); perubahan kategori diaudit; kategori dipakai pada registrasi aset dan item stok | ST-1.05 |
 
 ### E6 Governance and Operations
 
@@ -95,11 +97,11 @@
 |---|---|---|---|---|
 | ST-6.01 | Backend | Audit via activitylog di titik kritis + role visibility matrix | 5 role fixed single role per user; login/lockout/reset/disable/role change/sensitive access/download/export/master change diaudit; audit tidak menyimpan password/secret/session token raw; Manager default tanpa raw selfie/precise GPS/sensitive; HR tanpa technical evidence default; semua akses sensitive diaudit | ST-1.05 |
 | ST-6.02 | Backend | Export engine tiga format: Excel (xlsx) styled + PDF formal + CSV, dengan pilihan kolom + filter + preset per user | Excel: header bold, border, lebar kolom auto, judul+periode di header, filename dinamis; PDF: header instansi, siap cetak; CSV: data mentah; kustomisasi pilih kolom (checkbox per kolom), filter periode/site/status/EOS, preset disimpan per user dan dipakai ulang; sinkron (streamed), audit event sebelum stream; privacy visibility di-enforce (Manager tanpa raw selfie/precise GPS/sensitive) | ST-6.01 |
-| ST-6.03 | Frontend | Export UI (Super Admin/Manager) + preset management | Filter data type/periode/site scope + pilih kolom per checkbox; simpan preset per user, load preset; state `Menyiapkan berkas…` + error retry; hasil stream download langsung | ST-6.02 |
-| ST-6.04 | Backend | Notification in-app MVP | Tabel notifications Laravel (database channel) + polling; event: report reopened, attachment rejected, export selesai; bukan authority; tanpa email/WhatsApp | ST-6.01 |
+| ST-6.03 | Frontend | Export UI sesuai matriks role PRD (Super Admin penuh, Manager ringkasan lintas-site, Supervisor site scope, HR kehadiran sesuai otorisasi) + preset management | Filter data type/periode/site scope + pilih kolom per checkbox; simpan preset per user, load preset; state `Menyiapkan berkas…` + error retry; hasil stream download langsung; test role: Supervisor export data site scope sukses, HR export data kehadiran sukses, pelanggaran scope ditolak (403) | ST-6.02 |
+| ST-6.04 | Backend | Notification in-app MVP | Tabel notifications Laravel (database channel) + polling; event: report reopened, attachment rejected (tanpa event export selesai — export sinkron/streamed); bukan authority; tanpa email/WhatsApp | ST-6.01 |
 | ST-6.04a | Frontend | Notification center UI | Badge unread di header semua halaman; Notification Center daftar + `Tandai dibaca`/`Tandai semua dibaca` + tautan ke record sumber; empty state | ST-6.04 |
 | ST-6.05 | DevOps | Backup/restore: pg_dump harian + rsync attachment terjadwal + restore drill | RPO <= 24 jam, RTO <= 8 jam; restore drill terjadwal dengan catatan date/operator/duration/outcome | ST-1.02 |
-| ST-6.06 | DevOps | Monitoring/alert | Health endpoint sederhana + structured log stdout; backup job failure, disk >80%, site attachment quota >80%, worker backlog naik, repeated worker job failure | ST-6.05 |
+| ST-6.06 | DevOps | Monitoring/alert global | Health endpoint sederhana + structured log stdout; backup job failure, disk storage global >80% (via structured log/health endpoint), worker backlog naik, repeated worker job failure — tanpa per-site attachment quota | ST-6.05 |
 | ST-6.07 | Backend | Analytics dashboard queries (Inertia) + audit-logs read | Analitik attendance (kehadiran/report/inventory) scoped filter (tanggal lokal/site/role EOS/status) via Inertia props; audit log list Super Admin; role visibility sesuai matriks (Manager tanpa raw selfie/precise GPS/sensitive; akses sensitive diaudit); pagination | ST-6.01 |
 | ST-6.07a | Frontend | Dashboard & analitik screens | Dashboard Eksekutif/HR/EOS + analitik + audit log list; semua filter diproses server-side; drill-down dari KPI ke daftar detail tersedia; role visibility di UI konsisten dengan matriks backend | ST-6.07 |
 
@@ -110,7 +112,7 @@
 | ST-7.01 | Backend | Security release gate remediation | Semua test matrix security hijau (lockout, session, BOLA/policy, upload validation, log hygiene) | All P0 |
 | ST-7.02 | Backend | Full boundary test suite attendance/report/attachment | Double submit (unique), gate report clock-out, tanggal lokal sama, max 5/5/10 attachment, HEIC, reopen 7 hari, sequence nomor unique; tanpa regresi elemen offline di UI | E3, E4 |
 | ST-7.03 | Backend | UAT di staging oleh business user | Bukti skenario, expected/actual, tester, environment, waktu, sign-off; staging gate sebelum pilot | All P0 |
-| ST-7.04 | Backend | Pilot site WIB/WITA/WIT | Site fixture tiga timezone; Android Chrome dan iOS Safari dua major version terbaru; selfie overlay + GPS + gate report diverifikasi di perangkat nyata | ST-7.03 |
+| ST-7.04 | Backend | Pilot site WIB/WITA/WIT | Site fixture tiga timezone; Android Chrome, iOS Safari, desktop Chrome, Edge, dan Firefox dua major version terbaru (browser coverage gate PRD §9); selfie overlay + GPS + gate report diverifikasi di perangkat nyata; FaceDetector fallback diverifikasi pada browser tanpa API tersebut | ST-7.03 |
 | ST-7.05 | DevOps | Production go-live checklist | Promotion branch hanya dari `production`; release checklist lengkap; backup/restore drill terakhir lulus | ST-7.01–04 |
 
 ### Deferred (Fase 2 — di luar MVP)
@@ -119,7 +121,7 @@
 |---|---|---|---|
 | ST-6.08 | Backend | Legal hold | Deferred — dibangun saat retention/purge automation diimplementasikan. Saat diaktifkan: legal hold menyimpan reason, creator, data scope, start/end, audit event; purge/retention wajib cek legal hold. Visibility matrix ADR-034 tetap berlaku penuh; ini scope decision, bukan open operational item. |
 
-## 4. Out of Scope (dihapus dari MVP — keputusan `decisions.md`)
+## 4. Out of Scope (dihapus dari MVP — keputusan `Docs/prd.md` dan ADR-045–ADR-053)
 
 - Disiplin kehadiran: window jam, late minutes, klasifikasi EARLY/ON_TIME/LATE/EARLY_CLOCK_OUT, geofence gate + borderline, kalender kerja/holiday/override/`EFFECTIVE_WORKING_DAY`, periode 21–20, job ABSENT, Attendance Request (seluruh modul) — ditangani absensi vendor EOS.
 - Face matching/biometrik server-side; tidak ada penyimpanan biometrik.

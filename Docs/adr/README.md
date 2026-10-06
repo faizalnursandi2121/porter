@@ -17,7 +17,7 @@ ADR are short, durable records of decisions that should not change silently. Any
 | ADR-008 | Local Persistent Attachment Storage with FileStorage Port | Accepted |
 | ADR-009 | UTC Canonical Storage and Site-Local Timezone Rules | Accepted |
 | ADR-010 | Attendance Integrity Uses Server Time, Geofence, and Selfie | Accepted (partially superseded by ADR-046) |
-| ADR-011 | Daily Report Submission Is Required Before Clock-Out | Accepted |
+| ADR-011 | Daily Report Submission Is Required Before Clock-Out | Accepted (clock-out window/EARLY_CLOCK_OUT/geofence-gate parts superseded by ADR-046; report gate tetap) |
 | ADR-012 | Global Continuous Daily Report Number Sequence | Accepted |
 | ADR-013 | Versioned Checklist Templates and Report Snapshots | Accepted (snapshot source amended by ADR-049) |
 | ADR-014 | Inventory Belongs to Site; Inventory Finding Is Separate | Accepted |
@@ -34,7 +34,7 @@ ADR are short, durable records of decisions that should not change silently. Any
 | ADR-025 | Inventory Mutation and Stock Integrity Model | Accepted |
 | ADR-026 | Versioned Checklist Controlled-Value Model | Amended by ADR-049 (controlled values in JSON) |
 | ADR-027 | PWA and Attendance Integrity Policy (amended 2026-10-05 — offline report draft removed) | Accepted |
-| ADR-028 | Attachment Quota, Format, and Context Policy | Accepted |
+| ADR-028 | Attachment Quota, Format, and Context Policy | Accepted (2GB/site storage quota dropped by ADR-053 — no per-site quota in Laravel MVP; format/context/limits tetap) |
 | ADR-029 | Quarantined Evidence Processing and Malware-Scan Gate (amended 2026-10-05 — clamd health alerting; amended 2026-10-06 — ClamAV dropped, see ADR-044) | Accepted (amended by ADR-053 — lifecycle sync validation) |
 | ADR-030 | Environment Promotion and Deployment Controls (amended 2026-10-06 — topology without clamav, see ADR-044) | Accepted (amended by ADR-047 — topology without redis) |
 | ADR-031 | Backup, Recovery, and Restore-Test Policy | Accepted |
@@ -66,7 +66,7 @@ ADR are short, durable records of decisions that should not change silently. Any
 - 2026-10-06 amendment (ADR-044): ClamAV malware scanning is dropped entirely from the platform — no clamav container, `clam_db` volume, `CLAMD_HOST`/`CLAMD_PORT`, EICAR CI job, or fail-closed scanner gate. The ClamAV part of ADR-029 and the clamav topology in ADR-030 are amended; attachment validation remains MIME/magic-byte + size + safe decode + SHA-256. (2026-10-06 Laravel migration, ADR-053: lifecycle further simplified to `AVAILABLE | REJECTED` — validation synchronous in request, thumbnails queued.)
 
 - ADR-007 (Single-Environment Docker Compose and Dokploy Deployment) is superseded by ADR-030 (Environment Promotion and Deployment Controls). ADR-007 is retained for historical record; the local + staging + production topology defined in ADR-030 is binding.
-- ADR-038 (Attendance Exception and Temporary Field-Work Site Policy) is superseded by product owner decision (2026-10-01): EOS placement is permanent per site; temporary field-work assignment is removed from the MVP. Attendance outside the assigned site is handled via Attendance Request. ADR-038 is retained for historical record.
+- ADR-038 (Attendance Exception and Temporary Field-Work Site Policy) is superseded by product owner decision (2026-10-01): EOS placement is permanent per site; temporary field-work assignment is removed from the MVP. Attendance outside the assigned site has no in-system recovery path since ADR-046 removed the Attendance Request module entirely. ADR-038 is retained for historical record.
 - 2026-10-05 amendments (brainstorm spec-gap-audit decisions): ADR-024 renamed to Attendance Request Integrity Model (evidence mandatory in all cases, approved time = EOS-selected time, queue reviewed on Supervisor daily dashboard); ADR-027 offline report draft removed from scope (PWA online-only authoring); ADR-029 clamd health alerting required (fail-closed availability risk; superseded by ADR-044 — ClamAV dropped). Clock-out UX flow is continuous (report-first guidance) with the ADR-011 gate unchanged.
 
 ## Laravel stack migration (2026-10)
