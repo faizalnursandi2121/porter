@@ -378,3 +378,4 @@ Pertanyaan-pertanyaan terbuka berikut telah dikonfirmasi oleh pemilik produk dan
 13. **Manajemen akun**: Tidak ada registrasi mandiri; semua akun dibuat Supervisi/Administrator, akun baru wajib ganti password di login pertama. Reset kata sandi via email; Administrator juga dapat mengatur ulang (lihat FR-2, FR-4a).
 14. **Session**: Mengikuti konfigurasi default starter kit (120 menit) — bukan keputusan produk, diatur di konfigurasi aplikasi.
 15. **Deployment**: GitHub → Dokploy; tanpa environment staging terpisah. Backup harian wajib dengan restore teruji sebelum go-live.
+16. **Komponen timeline**: Komponen `timeline` tidak tersedia di registry resmi shadcn/ui (permintaan komunitas belum di-merge; lihat shadcn-ui/ui PR #9188). Subtask 0.4 meng-copy komponen timeline bergaya shadcn dari registry komunitas Creative Tim ke `resources/js/components/ui/timeline.tsx` (import `cn` disesuaikan konvensi v4), tanpa dependency runtime baru.

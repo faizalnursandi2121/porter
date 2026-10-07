@@ -37,7 +37,7 @@ Setiap subtask yang sudah selesai harus ditandai dengan mengubah `- [ ]` menjadi
   - [x] 0.1 Buat branch baru dari `main` dengan nama yang mencerminkan modul PORTER yang dikerjakan.
   - [x] 0.2 Pastikan konfigurasi environment lokal (database, storage privat, mail) siap sebelum menulis kode.
   - [x] 0.3 Catat ringkasan ruang lingkup branch di deskripsi pull request agar reviewer memahami konteks.
-  - [ ] 0.4 Rujuk `Docs/PRD/ui-design.md` sebagai baseline layout/pola UI untuk seluruh task berikutnya; install komponen shadcn yang dibutuhkan (`table`, `calendar`, `progress`, `form`, `alert`, `timeline`) via `npx shadcn@latest add <name>`.
+  - [x] 0.4 Rujuk `Docs/PRD/ui-design.md` sebagai baseline layout/pola UI untuk seluruh task berikutnya; install komponen shadcn yang dibutuhkan (`table`, `calendar`, `progress`, `form`, `alert`, `timeline`) via `npx shadcn@latest add <name>`.
   - [ ] 0.5 Tambahkan module nav di `LauncherHeader` sesuai ui-design.md §1–§3 (link modul per role; mobile → Sheet) dan seragamkan label tile dashboard ke English.
 
 - [ ] 1.0 Menyiapkan fondasi proyek: skema basis data, model, migrasi, seeder, dan konfigurasi zona waktu
