@@ -63,25 +63,25 @@ const moduleTiles: ModuleTile[] = [
         title: 'Master Data',
         href: '/supervisor/master/sites',
         icon: FolderGit2,
-        roles: ['SUPERVISOR', 'SUPER_ADMIN'],
+        roles: ['SUPERVISOR', 'ADMINISTRATOR'],
     },
     {
         title: 'Assignments',
         href: '/supervisor/master/assignments',
         icon: Users,
-        roles: ['SUPERVISOR', 'SUPER_ADMIN'],
+        roles: ['SUPERVISOR', 'ADMINISTRATOR'],
     },
     {
         title: 'Analytics',
         href: '/manager/analytics/overview',
         icon: BarChart3,
-        roles: ['MANAGER', 'SUPER_ADMIN'],
+        roles: ['SUPERVISOR', 'ADMINISTRATOR'],
     },
     {
         title: 'Users',
         href: '/admin/users',
         icon: UserCog,
-        roles: ['SUPER_ADMIN'],
+        roles: ['ADMINISTRATOR'],
     },
 ];
 
