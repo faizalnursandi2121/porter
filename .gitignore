@@ -27,6 +27,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.agents
+/_bmad/render
 /.amp
 /.claude
 /.cursor
