@@ -22,8 +22,11 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => $this->passwordRules(),
         ])->validate();
 
+        // FR-2: self-service reset proves mailbox ownership — the account is
+        // no longer on a temporary password, so the forced change is done.
         $user->forceFill([
             'password' => $input['password'],
+            'password_changed_at' => now(),
         ])->save();
     }
 }

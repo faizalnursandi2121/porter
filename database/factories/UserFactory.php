@@ -30,11 +30,26 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            // FR-2: default to "changed" so generic test users are not
+            // hijacked by the forced-change gate; opt out via
+            // withTemporaryPassword().
+            'password_changed_at' => now(),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
         ];
+    }
+
+    /**
+     * Indicate that the account still carries a temporary password, forcing a
+     * password change at next login.
+     */
+    public function withTemporaryPassword(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password_changed_at' => null,
+        ]);
     }
 
     /**

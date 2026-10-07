@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Hash;
 class InitialSeeder extends Seeder
 {
     // FR-2: no self-registration; the first Administrator exists before any login is possible.
-    // Password is for local/bootstrap only — rotated on first login per FR-2 (forced change).
+    // Password is for local/bootstrap only — the admin rotates it from settings;
+    // the seeded account is not treated as holding a temporary password.
     public const INITIAL_ADMIN_EMAIL = 'admin@porter.local';
 
     public const INITIAL_ADMIN_PASSWORD = 'porter-admin-2026';
@@ -29,6 +30,10 @@ class InitialSeeder extends Seeder
                 'password' => Hash::make(self::INITIAL_ADMIN_PASSWORD),
                 'role_id' => $adminRole->id,
                 'email_verified_at' => now(),
+                // FR-2: the forced change targets temp-password accounts
+                // handed out by admins (epic 2.6); the seeded bootstrap admin
+                // owns this install, so it starts unlocked.
+                'password_changed_at' => now(),
             ],
         );
 

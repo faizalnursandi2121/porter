@@ -104,7 +104,7 @@ class AuthenticationTest extends TestCase
         $response->assertTooManyRequests();
     }
 
-    // FR-4: five consecutive failures lock the email+IP pair for 15 minutes.
+    // FR-4 (2.2): five consecutive failures lock the ACCOUNT for 15 minutes.
     public function test_five_consecutive_failures_lock_login_for_fifteen_minutes()
     {
         $user = User::factory()->create();
@@ -117,6 +117,7 @@ class AuthenticationTest extends TestCase
         }
 
         $this->assertGuest();
+        $this->assertTrue($user->fresh()->isLockedUntil());
 
         // A correct password inside the lockout window still fails.
         $this->post(route('login.store'), [
@@ -139,6 +140,7 @@ class AuthenticationTest extends TestCase
         }
 
         $this->assertGuest();
+        $this->assertTrue($user->fresh()->isLockedUntil());
         $this->travel(16)->minutes();
 
         $this->post(route('login.store'), [

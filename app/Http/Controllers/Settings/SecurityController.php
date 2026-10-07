@@ -55,9 +55,12 @@ class SecurityController extends Controller
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
-        $request->user()->update([
+        // FR-2: any self-service change marks the temporary-password state
+        // resolved, whatever endpoint served it.
+        $request->user()->forceFill([
             'password' => $request->password,
-        ]);
+            'password_changed_at' => now(),
+        ])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 
