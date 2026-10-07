@@ -1,0 +1,78 @@
+# tickets.toml — epic 1 entries in build order. Entry id = subtask sub-number ("1a" = subtask 1.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat migrasi dan model untuk `roles`, `users`, `sites`, dan `site_connections` sesuai ERD."
+description = "Delivers subtask 1.1: Buat migrasi dan model untuk `roles`, `users`, `sites`, dan `site_connections` sesuai ERD."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.1", "CAP-10"]
+after = ["epic-e0-tooling"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Buat migrasi dan model untuk `assignments`, `attendances`, `templates`, `section_templates`, `daily_reports`, `report_sections`, dan `report_photos`."
+description = "Delivers subtask 1.2: Buat migrasi dan model untuk `assignments`, `attendances`, `templates`, `section_templates`, `daily_reports`, `report_sections`, dan `report_photos`."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.2", "CAP-10"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Buat migrasi dan model untuk `inventory_items`, `inventory_photos`, `material_stocks`, `stock_movements`, dan `audit_logs`."
+description = "Delivers subtask 1.3: Buat migrasi dan model untuk `inventory_items`, `inventory_photos`, `material_stocks`, `stock_movements`, dan `audit_logs`."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.3", "CAP-10"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Tambahkan indeks pada kolom yang sering difilter (tanggal laporan, site_id, user_id, status) untuk mendukung 200+ site."
+description = "Delivers subtask 1.4: Tambahkan indeks pada kolom yang sering difilter (tanggal laporan, site_id, user_id, status) untuk mendukung 200+ site."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.4", "CAP-10"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Buat seeder peran (EOS, Supervisi, HR, Administrator), akun Administrator awal, dan beberapa site contoh dengan zona waktu berbeda."
+description = "Delivers subtask 1.5: Buat seeder peran (EOS, Supervisi, HR, Administrator), akun Administrator awal, dan beberapa site contoh dengan zona waktu berbeda."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.5", "CAP-10"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Buat helper konversi waktu UTC ke zona waktu lokal sekolah dan sebaliknya, lalu tulis test unit untuk helper tersebut."
+description = "Delivers subtask 1.6: Buat helper konversi waktu UTC ke zona waktu lokal sekolah dan sebaliknya, lalu tulis test unit untuk helper tersebut."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.6", "CAP-10"]
+after = [5]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Konfigurasikan disk storage privat untuk foto dan pastikan tidak ada file yang dapat diakses langsung dari direktori publik."
+description = "Delivers subtask 1.7: Konfigurasikan disk storage privat untuk foto dan pastikan tidak ada file yang dapat diakses langsung dari direktori publik."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["1.7", "CAP-10"]
+after = [6]
+hitl = false
+risk = "medium"

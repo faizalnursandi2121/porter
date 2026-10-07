@@ -1,0 +1,122 @@
+# tickets.toml — epic 7 entries in build order. Entry id = subtask sub-number ("1a" = subtask 7.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat dashboard dengan filter periode, sekolah, dan EOS yang dapat dikombinasikan serta dapat direset."
+description = "Delivers subtask 7.1: Buat dashboard dengan filter periode, sekolah, dan EOS yang dapat dikombinasikan serta dapat direset."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.1", "CAP-6"]
+after = ["epic-e1-foundation", "epic-e2-auth-rbac", "epic-e3-master-placement", "epic-e4-attendance", "epic-e5-daily-report", "epic-e6-inventory"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Implementasikan KPI kehadiran, kelengkapan laporan, kesehatan jaringan, kondisi lingkungan, anomali, dan inventory sesuai FR-38 sampai FR-43."
+description = "Delivers subtask 7.2: Implementasikan KPI kehadiran, kelengkapan laporan, kesehatan jaringan, kondisi lingkungan, anomali, dan inventory sesuai FR-38 sampai FR-43."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.2", "CAP-6"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Tampilkan indikator loading dan empty state \"No data for this filter.\" saat dashboard tidak memiliki data."
+description = "Delivers subtask 7.3: Tampilkan indikator loading dan empty state \"No data for this filter.\" saat dashboard tidak memiliki data."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.3", "CAP-6"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Implementasikan ekspor Excel dan PDF sesuai filter aktif dengan kop sederhana tanpa tanda tangan digital."
+description = "Delivers subtask 7.4: Implementasikan ekspor Excel dan PDF sesuai filter aktif dengan kop sederhana tanpa tanda tangan digital."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.4", "CAP-6"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Buat halaman audit log dengan filter periode, pelaku, dan jenis aksi, serta pastikan audit log bersifat append-only."
+description = "Delivers subtask 7.5: Buat halaman audit log dengan filter periode, pelaku, dan jenis aksi, serta pastikan audit log bersifat append-only."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.5", "CAP-7"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Implementasikan endpoint akses foto yang memeriksa peran sesuai FR-48 dan mencatat setiap akses ke audit log."
+description = "Delivers subtask 7.6: Implementasikan endpoint akses foto yang memeriksa peran sesuai FR-48 dan mencatat setiap akses ke audit log."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.6", "CAP-7"]
+after = [5]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Tulis test fitur untuk hak akses foto per peran, pencatatan akses foto, dan filter audit log."
+description = "Delivers subtask 7.7: Tulis test fitur untuk hak akses foto per peran, pencatatan akses foto, dan filter audit log."
+verify = "New feature tests pass and pin the listed rules; prior behavior unregressed."
+covers = ["7.7", "CAP-7"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Tulis dokumentasi singkat di `Docs/` untuk aturan foto, panduan peran, dan prosedur backup/restore sebelum go-live."
+description = "Delivers subtask 7.8: Tulis dokumentasi singkat di `Docs/` untuk aturan foto, panduan peran, dan prosedur backup/restore sebelum go-live."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["7.8", "CAP-7"]
+after = [7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Set up CI pipeline for the PORTER app"
+description = "Delivers ops entry 7.9 (added by owner decision 2026-10-07, outside the original 1:1 subtask set): CI runs composer ci:check parity (pint, phpstan, artisan test) plus npm run check and npm run types:check on every push/PR."
+verify = "A pushed commit shows the CI run green through both the PHP and the JS gate; a deliberate lint failure turns it red."
+covers = ["7.9", "CAP-6"]
+after = [8]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Wire the Dokploy deployment pipeline"
+description = "Delivers ops entry 7.10 (owner decision 2026-10-07): releases deploy GitHub to Dokploy without a staging environment, per locked decision 15."
+verify = "A merge deploys through Dokploy and the app answers with the health route on the production domain."
+covers = ["7.10"]
+after = [9]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Daily backup with tested restore before go-live"
+description = "Delivers ops entry 7.11 (owner decision 2026-10-07): agent builds the automated daily backup pipeline for the database and private photo storage plus the documented restore procedure; a person supplies production credentials and executes the restore drill. Closes initiative Done-when #3."
+verify = "Backup runs daily on schedule and the recorded restore procedure was executed once from a bare state, restoring DB and photos."
+covers = ["7.11"]
+after = [10]
+hitl = true
+risk = "high"

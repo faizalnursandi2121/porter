@@ -6,6 +6,7 @@ companions:
   - conventions.md
   - delivery.md
   - success-metrics.md
+  - ../story-contract.md
   - ../../../Docs/PRD/ui-design.md
 sources:
   - Docs/PRD/prd-porter-portal-operasional-terpadu.md
