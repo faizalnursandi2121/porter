@@ -1,0 +1,57 @@
+# tickets.toml — epic 0 entries in build order. Entry id = subtask sub-number ("1a" = subtask 0.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat branch baru dari `main` dengan nama yang mencerminkan modul PORTER yang dikerjakan."
+description = "Delivers subtask 0.1: Buat branch baru dari `main` dengan nama yang mencerminkan modul PORTER yang dikerjakan."
+verify = "Branch exists and is checked out; its name reflects the PORTER module in scope."
+covers = ["0.1"]
+after = []
+hitl = false
+risk = "medium"
+notes = ["Builder runs subtask 0.0 (create the feature branch) as this entry's starter step."]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Pastikan konfigurasi environment lokal (database, storage privat, mail) siap sebelum menulis kode."
+description = "Delivers subtask 0.2: Pastikan konfigurasi environment lokal (database, storage privat, mail) siap sebelum menulis kode."
+verify = "php artisan migrate and a seeded mail/storage smoke pass on the configured local env."
+covers = ["0.2"]
+after = [1]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Catat ringkasan ruang lingkup branch di deskripsi pull request agar reviewer memahami konteks."
+description = "Delivers subtask 0.3: Catat ringkasan ruang lingkup branch di deskripsi pull request agar reviewer memahami konteks."
+verify = "Draft pull request shows the branch scope summary for reviewers."
+covers = ["0.3"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Rujuk `Docs/PRD/ui-design.md` sebagai baseline layout/pola UI untuk seluruh task berikutnya; install komponen shadcn yang dibutuhkan (`table`, `calendar`, `progress`, `form`, `alert`, `timeline`) via `npx shadcn@latest add <name>`."
+description = "Delivers subtask 0.4: Rujuk `Docs/PRD/ui-design.md` sebagai baseline layout/pola UI untuk seluruh task berikutnya; install komponen shadcn yang dibutuhkan (`table`, `calendar`, `progress`, `form`, `alert`, `timeline`) via `npx shadcn@latest add <name>`."
+verify = "table, calendar, progress, form, alert, timeline exist under resources/js/components/ui/."
+covers = ["0.4"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Tambahkan module nav di `LauncherHeader` sesuai ui-design.md §1–§3 (link modul per role; mobile → Sheet) dan seragamkan label tile dashboard ke English."
+description = "Delivers subtask 0.5: Tambahkan module nav di `LauncherHeader` sesuai ui-design.md §1–§3 (link modul per role; mobile → Sheet) dan seragamkan label tile dashboard ke English."
+verify = "Nav renders role-scoped module links per ui-design.md section 3 with Sheet on mobile; dashboard tile labels are English."
+covers = ["0.5"]
+after = [4]
+hitl = false
+risk = "medium"

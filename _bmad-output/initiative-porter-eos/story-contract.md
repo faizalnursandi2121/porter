@@ -77,7 +77,7 @@ Setelah `CONTRACTED`, satu story dibuka dua tiket kerja:
 | **BE** | Migration (bila perlu) + action/service + controller nyata + FormRequest + **test feature** (test hitung: kode error, redirect target, isi DB) | Feature test lulus; endpoint nyata; mock dimatikan |
 | **FE** | Halaman Inertia + komponen + state (loading/empty/error) + **test komponen/fixture** | Semua state ter-render dari fixture mock; tidak ada fetch di luar kontrak |
 
-- **Mock BE untuk FE**: `routes/web.php` blok `if (env('MOCK_MODE'))` — controllers palsu yang mengembalikan props sesuai kontrak dengan data fixture tetap (di `tests/Fixtures/` atau `database/factories`). Mock hidup di repo, dicabut saat integrasi. Tidak ada MSW/interceptor pihak ketiga — Inertia + fixture saja.
+- **Mock BE untuk FE**: `routes/web.php` blok `if (config('porter.mock_mode'))` (config, bukan `env()` — aman saat config di-cache; direkonsiliasi 2026-10-07) — controllers palsu yang mengembalikan props sesuai kontrak dengan data fixture tetap (di `tests/Fixtures/` atau `database/factories`). Mock hidup di repo, dicabut saat integrasi. Tidak ada MSW/interceptor pihak ketiga — Inertia + fixture saja.
 - **Mock FE untuk BE** (bila perlu): fixture JSON dari kontrak dipakai BE untuk uji bentuk respons.
 - Paralel aman karena kedua jalur hanya berpegang pada blok `## Contract`, bukan pada kode satu sama lain.
 

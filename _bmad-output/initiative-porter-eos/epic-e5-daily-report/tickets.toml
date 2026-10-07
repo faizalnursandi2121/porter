@@ -1,0 +1,155 @@
+# tickets.toml — epic 5 entries in build order. Entry id = subtask sub-number ("1a" = subtask 5.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat CRUD template dan section template khusus Administrator dengan mekanisme versi."
+description = "Delivers subtask 5.1: Buat CRUD template dan section template khusus Administrator dengan mekanisme versi."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.1", "CAP-4"]
+after = ["epic-e1-foundation", "epic-e2-auth-rbac", "epic-e3-master-placement"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Simpan snapshot definisi template pada setiap laporan baru agar laporan lama tidak berubah saat template direvisi."
+description = "Delivers subtask 5.2: Simpan snapshot definisi template pada setiap laporan baru agar laporan lama tidak berubah saat template direvisi."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.2", "CAP-4"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Buat form Daily Report dengan lima section dan indikator kelengkapan visual per section."
+description = "Delivers subtask 5.3: Buat form Daily Report dengan lima section dan indikator kelengkapan visual per section.; owns the FR-20 completeness gate (submit rejected when any section empty or photo missing), tested by entry 13"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.3", "CAP-7"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Isi otomatis section Info Umum (nomor laporan, tanggal lokal, nama sekolah, nama EOS) sesuai FR-15."
+description = "Delivers subtask 5.4: Isi otomatis section Info Umum (nomor laporan, tanggal lokal, nama sekolah, nama EOS) sesuai FR-15."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.4", "CAP-4"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Implementasikan validasi kondisional wajib penjelasan dan foto pada section Router & Firewall serta Infrastruktur & Lingkungan, dan validasi Konektivitas Dual-Link: traffic diisi untuk link utama dan backup, hasil speedtest terpisah per link, minimal 1 screenshot speedtest per link."
+description = "Delivers subtask 5.5: Implementasikan validasi kondisional wajib penjelasan dan foto pada section Router & Firewall serta Infrastruktur & Lingkungan, dan validasi Konektivitas Dual-Link: traffic diisi untuk link utama dan backup, hasil speedtest terpisah per link, minimal 1 screenshot speedtest per link."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.5", "CAP-4"]
+after = [4]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Implementasikan validasi foto/lampiran (format, ukuran maksimal 10 MB, batas jumlah per section dan total) dengan pesan penolakan yang jelas."
+description = "Delivers subtask 5.6: Implementasikan validasi foto/lampiran (format, ukuran maksimal 10 MB, batas jumlah per section dan total) dengan pesan penolakan yang jelas.; evidence photos go to the private disk via the shared uploader; viewing stays behind epic 7's audited endpoint (7.6)"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.6", "CAP-7"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Implementasikan penyimpanan draf di server dan lanjutkan draf sebelum submit."
+description = "Delivers subtask 5.7: Implementasikan penyimpanan draf di server dan lanjutkan draf sebelum submit."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.7", "CAP-4"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Implementasikan submit dengan alokasi nomor `CMX.WR.YYYYMM.SEQUENCE` unik permanen dan konfirmasi \"Laporan berhasil dikirim\"."
+description = "Delivers subtask 5.8: Implementasikan submit dengan alokasi nomor `CMX.WR.YYYYMM.SEQUENCE` unik permanen dan konfirmasi \"Laporan berhasil dikirim\".; its status contract is consumed by epic 4 entry 6's clock-out gate (story-contract section 3)"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.8", "CAP-7"]
+after = [7]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Pertahankan seluruh isian dan foto saat submit gagal karena koneksi terputus, dan sediakan tombol coba lagi."
+description = "Delivers subtask 5.9: Pertahankan seluruh isian dan foto saat submit gagal karena koneksi terputus, dan sediakan tombol coba lagi."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.9", "CAP-4"]
+after = [8]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Implementasikan revisi laporan sendiri pada hari yang sama dengan penambahan hitungan revisi tanpa mengubah nomor laporan."
+description = "Delivers subtask 5.10: Implementasikan revisi laporan sendiri pada hari yang sama dengan penambahan hitungan revisi tanpa mengubah nomor laporan."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.10", "CAP-4"]
+after = [9]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Implementasikan reopen oleh Supervisi/Administrator dengan alasan wajib dan notifikasi in-app ke EOS."
+description = "Delivers subtask 5.11: Implementasikan reopen oleh Supervisi/Administrator dengan alasan wajib dan notifikasi in-app ke EOS."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.11", "CAP-4"]
+after = [10]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = "11a"
+type = "story"
+title = "Buat indikator notifikasi in-app di beranda EOS (daftar notifikasi belum dibaca: laporan dibuka ulang), dengan penanda sudah dibaca — polling sederhana, tanpa push."
+description = "Delivers subtask 5.11a: Buat indikator notifikasi in-app di beranda EOS (daftar notifikasi belum dibaca: laporan dibuka ulang), dengan penanda sudah dibaca — polling sederhana, tanpa push."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.11a", "CAP-4"]
+after = [11]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Buat daftar laporan dengan filter tanggal, sekolah, EOS, dan status, serta empty state \"No reports found for this filter.\""
+description = "Delivers subtask 5.12: Buat daftar laporan dengan filter tanggal, sekolah, EOS, dan status, serta empty state \"No reports found for this filter.\"."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["5.12", "CAP-4"]
+after = ["11a"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 13
+type = "story"
+title = "Tulis test fitur untuk alokasi nomor laporan, validasi kelengkapan section, revisi, dan reopen."
+description = "Delivers subtask 5.13: Tulis test fitur untuk alokasi nomor laporan, validasi kelengkapan section, revisi, dan reopen."
+verify = "New feature tests pass and pin the listed rules; prior behavior unregressed."
+covers = ["5.13", "CAP-4"]
+after = [12]
+hitl = false
+risk = "medium"

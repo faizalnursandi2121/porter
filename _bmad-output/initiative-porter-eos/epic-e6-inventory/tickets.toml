@@ -1,0 +1,78 @@
+# tickets.toml — epic 6 entries in build order. Entry id = subtask sub-number ("1a" = subtask 6.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat form pencatatan barang datang (nama, kategori, jumlah, tanggal terima, minimal 1 foto) yang terikat pada sekolah."
+description = "Delivers subtask 6.1: Buat form pencatatan barang datang (nama, kategori, jumlah, tanggal terima, minimal 1 foto) yang terikat pada sekolah."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.1", "CAP-5"]
+after = ["epic-e1-foundation", "epic-e2-auth-rbac", "epic-e3-master-placement"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Implementasikan perubahan status barang (`dipakai`, `cadangan`, `rusak`, `dikembalikan`, `hilang`) dengan alasan wajib untuk `rusak` dan `hilang`."
+description = "Delivers subtask 6.2: Implementasikan perubahan status barang (`dipakai`, `cadangan`, `rusak`, `dikembalikan`, `hilang`) dengan alasan wajib untuk `rusak` dan `hilang`."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.2", "CAP-5"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Catat setiap perubahan status inventory ke audit log beserta nilai sebelum dan sesudah."
+description = "Delivers subtask 6.3: Catat setiap perubahan status inventory ke audit log beserta nilai sebelum dan sesudah."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.3", "CAP-7"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Implementasikan pencatatan stok material habis pakai dengan transaksi barang masuk, keluar, dan pemakaian; tolak transaksi yang membuat saldo stok negatif dengan pesan yang menyebut saldo saat ini."
+description = "Delivers subtask 6.4: Implementasikan pencatatan stok material habis pakai dengan transaksi barang masuk, keluar, dan pemakaian; tolak transaksi yang membuat saldo stok negatif dengan pesan yang menyebut saldo saat ini.; stock movements are audit-logged (FR-46 'inventory changes')"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.4", "CAP-5"]
+after = [3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Pastikan inventory tetap milik sekolah asal saat EOS dipindahkan, dan sediakan koreksi inventory oleh Supervisi/Administrator."
+description = "Delivers subtask 6.5: Pastikan inventory tetap milik sekolah asal saat EOS dipindahkan, dan sediakan koreksi inventory oleh Supervisi/Administrator.; corrections are audited (FR-32) via the shared audit-write contract"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.5", "CAP-5", "CAP-7"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Buat daftar inventory dengan empty state \"No items recorded at this site yet.\""
+description = "Delivers subtask 6.6: Buat daftar inventory dengan empty state \"No items recorded at this site yet.\"."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["6.6", "CAP-5"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Tulis test fitur untuk kepemilikan inventory per sekolah, validasi alasan status, penolakan stok negatif, dan pencatatan pergerakan stok."
+description = "Delivers subtask 6.7: Tulis test fitur untuk kepemilikan inventory per sekolah, validasi alasan status, penolakan stok negatif, dan pencatatan pergerakan stok."
+verify = "New feature tests pass and pin the listed rules; prior behavior unregressed."
+covers = ["6.7", "CAP-5"]
+after = [6]
+hitl = false
+risk = "medium"
