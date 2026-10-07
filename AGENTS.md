@@ -1,5 +1,17 @@
 # PORTER — Project Context (authoritative)
 
+<!-- bmad:context -->
+<!-- Verified 2026-10-07 against 1c81e25. Managed by bmad-project-context; edits inside this block are replaced on refresh. Keep anything you want preserved outside the markers. -->
+
+## BMad planning pointers
+
+- Active initiative: `_bmad-output/initiative-porter-eos/` — spec contract `spec-porter/` (kernel + companions), story working method (sharding, FE/BE paralel via mock, E2E penutup): `story-contract.md`, ticket tree: `epic-*/`.
+- Read in order: this `AGENTS.md` → PRD `Docs/PRD/prd-porter-portal-operasional-terpadu.md` → spec `spec-porter/spec-porter.md` (+ companions) → ticket tree.
+- The spec supplements AGENTS.md — never overrides.
+- PRD-derived summary also lives in `.agent-context.md` (generated; PRD wins on conflict).
+
+<!-- /bmad:context -->
+
 Project ini membangun **PORTER (Portal Operasional Terpadu)**: aplikasi Laravel 13 + Inertia + React (shadcn/ui) untuk pemantauan operasional EOS di site Sekolah Rakyat.
 
 ## Sumber Kebenaran Dokumen
