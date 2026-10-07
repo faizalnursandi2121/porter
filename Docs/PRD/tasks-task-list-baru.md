@@ -40,14 +40,14 @@ Setiap subtask yang sudah selesai harus ditandai dengan mengubah `- [ ]` menjadi
   - [x] 0.4 Rujuk `Docs/PRD/ui-design.md` sebagai baseline layout/pola UI untuk seluruh task berikutnya; install komponen shadcn yang dibutuhkan (`table`, `calendar`, `progress`, `form`, `alert`, `timeline`) via `npx shadcn@latest add <name>`.
   - [x] 0.5 Tambahkan module nav di `LauncherHeader` sesuai ui-design.md §1–§3 (link modul per role; mobile → Sheet) dan seragamkan label tile dashboard ke English.
 
-- [ ] 1.0 Menyiapkan fondasi proyek: skema basis data, model, migrasi, seeder, dan konfigurasi zona waktu
-  - [ ] 1.1 Buat migrasi dan model untuk `roles`, `users`, `sites`, dan `site_connections` sesuai ERD.
-  - [ ] 1.2 Buat migrasi dan model untuk `assignments`, `attendances`, `templates`, `section_templates`, `daily_reports`, `report_sections`, dan `report_photos`.
-  - [ ] 1.3 Buat migrasi dan model untuk `inventory_items`, `inventory_photos`, `material_stocks`, `stock_movements`, dan `audit_logs`.
-  - [ ] 1.4 Tambahkan indeks pada kolom yang sering difilter (tanggal laporan, site_id, user_id, status) untuk mendukung 200+ site.
-  - [ ] 1.5 Buat seeder peran (EOS, Supervisi, HR, Administrator), akun Administrator awal, dan beberapa site contoh dengan zona waktu berbeda.
-  - [ ] 1.6 Buat helper konversi waktu UTC ke zona waktu lokal sekolah dan sebaliknya, lalu tulis test unit untuk helper tersebut.
-  - [ ] 1.7 Konfigurasikan disk storage privat untuk foto dan pastikan tidak ada file yang dapat diakses langsung dari direktori publik.
+- [x] 1.0 Menyiapkan fondasi proyek: skema basis data, model, migrasi, seeder, dan konfigurasi zona waktu
+  - [x] 1.1 Buat migrasi dan model untuk `roles`, `users`, `sites`, dan `site_connections` sesuai ERD.
+  - [x] 1.2 Buat migrasi dan model untuk `assignments`, `attendances`, `templates`, `section_templates`, `daily_reports`, `report_sections`, dan `report_photos`.
+  - [x] 1.3 Buat migrasi dan model untuk `inventory_items`, `inventory_photos`, `material_stocks`, `stock_movements`, dan `audit_logs`.
+  - [x] 1.4 Tambahkan indeks pada kolom yang sering difilter (tanggal laporan, site_id, user_id, status) untuk mendukung 200+ site.
+  - [x] 1.5 Buat seeder peran (EOS, Supervisi, HR, Administrator), akun Administrator awal, dan beberapa site contoh dengan zona waktu berbeda.
+  - [x] 1.6 Buat helper konversi waktu UTC ke zona waktu lokal sekolah dan sebaliknya, lalu tulis test unit untuk helper tersebut.
+  - [x] 1.7 Konfigurasikan disk storage privat untuk foto dan pastikan tidak ada file yang dapat diakses langsung dari direktori publik.
 
 - [ ] 2.0 Membangun autentikasi, otorisasi berbasis peran (RBAC), dan manajemen akun pengguna
   - [ ] 2.1 Implementasikan login berbasis session cookie dengan pesan error generik "Email atau kata sandi salah" sesuai FR-4.

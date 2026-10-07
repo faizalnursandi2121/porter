@@ -33,7 +33,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Subtask 1.7 / FR-48/49: photos stream only through the audited, role-checked
+            // endpoint (epic 7.6/7.7); Laravel's serve route must not expose these files.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],
