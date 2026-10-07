@@ -21,3 +21,10 @@ Execution order and scope mapping from `Docs/PRD/tasks-task-list-baru.md` (68 su
 - Photo pipeline (private disk + audited endpoint) appears in groups 1, 4, 5, 6, 7 — the endpoint and FR-48 role matrix land finally at 7.6/7.7; interim photo pages must not bypass it.
 - Empty-state strings are verbatim FR text (FR-26/33/45 + FR-6/9 messages) — copy from `fr-catalog.md`, don't paraphrase.
 - Documentation deliverable 7.8 lands in `Docs/` before go-live: photo rules, role guide, backup/restore.
+
+## Story decomposition & parallel tracks
+
+All epics are decomposed and run per `_bmad-output/initiative-porter-eos/story-contract.md`:
+1 subtask = 1 story with a mandatory `## Contract` block (routes, error codes, Inertia props).
+After a story is CONTRACTED, its FE (against mock fixtures) and BE (feature tests) run in parallel;
+integration = mocks removed + E2E happy path + ≥1 failure path. This applies to every epic, current and future.
