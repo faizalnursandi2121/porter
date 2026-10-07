@@ -57,12 +57,26 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post(route('login.store'), [
+        $response = $this->post(route('login.store'), [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
 
         $this->assertGuest();
+        // FR-4: one generic message — no hint which part failed.
+        $response->assertSessionHasErrors(['email' => 'Email atau kata sandi salah']);
+    }
+
+    public function test_unknown_email_gets_the_same_generic_error()
+    {
+        $response = $this->post(route('login.store'), [
+            'email' => 'nobody@example.test',
+            'password' => 'whatever',
+        ]);
+
+        $this->assertGuest();
+        // FR-4: no account-existence oracle.
+        $response->assertSessionHasErrors(['email' => 'Email atau kata sandi salah']);
     }
 
     public function test_users_can_logout()
@@ -88,5 +102,71 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertTooManyRequests();
+    }
+
+    // FR-4: five consecutive failures lock the email+IP pair for 15 minutes.
+    public function test_five_consecutive_failures_lock_login_for_fifteen_minutes()
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 5) as $attempt) {
+            $this->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-password-'.$attempt,
+            ]);
+        }
+
+        $this->assertGuest();
+
+        // A correct password inside the lockout window still fails.
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+    }
+
+    public function test_lockout_expires_after_fifteen_minutes()
+    {
+        $user = User::factory()->create();
+
+        foreach (range(1, 5) as $attempt) {
+            $this->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-'.$attempt,
+            ]);
+        }
+
+        $this->assertGuest();
+        $this->travel(16)->minutes();
+
+        $this->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+    }
+
+    public function test_failure_count_is_per_email_ip_pair()
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        foreach (range(1, 5) as $attempt) {
+            $this->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-'.$attempt,
+            ]);
+        }
+
+        // A different account from the same IP is not locked by the first pair's failures.
+        $this->post(route('login.store'), [
+            'email' => $other->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
     }
 }

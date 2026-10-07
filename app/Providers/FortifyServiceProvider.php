@@ -85,10 +85,11 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
+        // FR-4: 5 consecutive failures lock the email+IP pair for 15 minutes.
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            return Limit::perMinute(5, decayMinutes: 15)->by($throttleKey);
         });
 
         RateLimiter::for('passkeys', function (Request $request) {
