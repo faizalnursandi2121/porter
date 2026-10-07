@@ -9,7 +9,7 @@
 ## 1. Prinsip Layout
 
 1. **Satu pola layout untuk semua role: App Launcher.** Dashboard = kumpulan tile modul (sudah terimplementasi di `resources/js/pages/dashboard.tsx`). Tidak ada sidebar untuk role mana pun.
-2. **Header persisten + module nav.** `LauncherHeader` (sudah ada: logo, command palette Ctrl+K, notifikasi, theme switch, avatar menu) ditambah baris nav modul — link per modul sesuai role (lihat §3). Di mobile, nav modul menjadi scroll horizontal atau masuk Sheet (hamburger).
+2. **Header persisten; module nav = launcher tiles.** `LauncherHeader` tetap seperti existing (logo, command palette Ctrl+K, notifikasi, theme switch, avatar menu) — TANPA baris nav modul. Nav modul dirender oleh dashboard sebagai tiles ber-ikon (existing pattern `resources/js/pages/dashboard.tsx`); link per modul sesuai role (lihat §3). (Amended 2026-10-07: subtask 0.5 awalnya menyuruh menambah baris nav di header; keputusan pemilik produk — pattern launcher tiles yang sudah ada dipertahankan, header tidak diubah.)
 3. **Dalam modul:** breadcrumb (`Breadcrumb`) + tombol Back. Tidak ada nav samping. Pindah modul = nav header atau Ctrl+K.
 4. **Mobile-first.** Breakpoint dasar 1 kolom; grid tile 2 kolom di HP, 3–4 di desktop. Target sentuh ≥ 44px.
 5. **Dark mode** via `useAppearance` (sudah ada) — semua warna memakai token Tailwind (`bg-background`, `text-muted-foreground`, dst.), tidak ada warna hardcode.
@@ -21,7 +21,7 @@
 ### 2.1 Dashboard (Home / Launcher)
 
 ```
-LauncherHeader (logo · module nav · ⊕Ctrl+K · 🔔 · theme · avatar)
+LauncherHeader (logo · ⊕Ctrl+K · 🔔 · theme · avatar)
 ─────────────────────────────────────────────
 Good Afternoon, {name}
 {Weekday, D Month YYYY}

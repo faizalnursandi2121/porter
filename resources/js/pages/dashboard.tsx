@@ -24,61 +24,61 @@ type ModuleTile = {
 // Menu launcher sesuai route baseline ui-spec.md §3; gating role (PRD §4).
 const moduleTiles: ModuleTile[] = [
     {
-        title: 'Presensi',
+        title: 'Attendance',
         href: '/eos/attendance',
         icon: MapPin,
         roles: ['EOS'],
     },
     {
-        title: 'Laporan Harian',
+        title: 'Daily Report',
         href: '/eos/daily-report/current',
         icon: ClipboardCheck,
         roles: ['EOS'],
     },
     {
-        title: 'Inventaris',
+        title: 'Inventory',
         href: '/eos/inventory/assets',
         icon: Package,
         roles: ['EOS'],
     },
     {
-        title: 'Kehadiran Site',
+        title: 'Attendance',
         href: '/supervisor/attendance',
         icon: MapPin,
         roles: ['SUPERVISOR'],
     },
     {
-        title: 'Review Laporan',
+        title: 'Daily Reports',
         href: '/supervisor/daily-reports',
         icon: ClipboardCheck,
         roles: ['SUPERVISOR'],
     },
     {
-        title: 'Inventaris Site',
+        title: 'Inventory',
         href: '/supervisor/inventory/assets',
         icon: Package,
         roles: ['SUPERVISOR'],
     },
     {
-        title: 'Master Site',
+        title: 'Master Data',
         href: '/supervisor/master/sites',
         icon: FolderGit2,
         roles: ['SUPERVISOR', 'SUPER_ADMIN'],
     },
     {
-        title: 'Assignment EOS',
+        title: 'Assignments',
         href: '/supervisor/master/assignments',
         icon: Users,
         roles: ['SUPERVISOR', 'SUPER_ADMIN'],
     },
     {
-        title: 'Analitik',
+        title: 'Analytics',
         href: '/manager/analytics/overview',
         icon: BarChart3,
         roles: ['MANAGER', 'SUPER_ADMIN'],
     },
     {
-        title: 'Manajemen User',
+        title: 'Users',
         href: '/admin/users',
         icon: UserCog,
         roles: ['SUPER_ADMIN'],
@@ -120,6 +120,11 @@ export default function Dashboard() {
             <div className="flex min-h-screen w-full flex-col bg-muted/30">
                 <LauncherHeader
                     auth={auth}
+                    modules={tiles.map((tile) => ({
+                        title: tile.title,
+                        href: tile.href,
+                        icon: tile.icon,
+                    }))}
                     searchItems={tiles.map((tile) => ({
                         title: tile.title,
                         href: tile.href,
