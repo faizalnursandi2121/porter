@@ -3,7 +3,7 @@ title: '0.1 — Create PORTER feature branch from main'
 type: 'chore'
 ticket: '1'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '76f5094'
 route: 'oneshot'
 route_source: 'auto'

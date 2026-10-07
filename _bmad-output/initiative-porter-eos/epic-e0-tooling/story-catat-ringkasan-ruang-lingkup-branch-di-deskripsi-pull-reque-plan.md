@@ -3,7 +3,7 @@ title: '0.3 — Record branch scope summary in the pull request description'
 type: 'chore'
 ticket: '3'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '63866ea'
 route: 'oneshot'
 route_source: 'auto'

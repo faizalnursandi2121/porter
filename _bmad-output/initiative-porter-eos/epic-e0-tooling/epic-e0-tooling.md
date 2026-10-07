@@ -2,6 +2,7 @@
 tracker_id: ""
 key: ""
 type: epic
+status: done
 title: "Tooling baseline: branch, env, shadcn, module nav"
 parent: initiative-porter-eos
 covers: []

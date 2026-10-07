@@ -3,7 +3,7 @@ title: '0.4 — ui-design.md baseline reference + install shadcn components'
 type: 'chore'
 ticket: '4'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'f458856'
 route: 'oneshot'
 route_source: 'auto'

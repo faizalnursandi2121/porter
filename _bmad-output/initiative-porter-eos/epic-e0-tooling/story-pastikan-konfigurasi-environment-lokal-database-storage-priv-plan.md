@@ -3,7 +3,7 @@ title: '0.2 — Verify local environment readiness (database, private storage, m
 type: 'chore'
 ticket: '2'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '16216f3'
 route: 'oneshot'
 route_source: 'auto'
