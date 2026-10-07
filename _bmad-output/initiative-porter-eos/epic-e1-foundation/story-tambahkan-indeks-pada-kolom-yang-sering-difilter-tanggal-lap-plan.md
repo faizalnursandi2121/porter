@@ -3,7 +3,7 @@ title: '1.4 — Indexes on frequently filtered columns (report date, site_id, us
 type: 'feature'
 ticket: '4'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '972848e'
 route: 'oneshot'
 route_source: 'auto'

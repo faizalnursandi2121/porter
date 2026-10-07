@@ -3,7 +3,7 @@ title: '1.2 — Migrations and models: assignments, attendances, templates, sect
 type: 'feature'
 ticket: '2'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '3358447'
 route: 'full'
 route_source: 'auto'

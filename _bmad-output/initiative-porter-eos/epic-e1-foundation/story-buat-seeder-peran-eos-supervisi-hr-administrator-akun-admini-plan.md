@@ -3,7 +3,7 @@ title: '1.5 — Seeder: 4 roles, initial Administrator, sample sites across time
 type: 'feature'
 ticket: '5'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '39dc637'
 route: 'full'
 route_source: 'auto'

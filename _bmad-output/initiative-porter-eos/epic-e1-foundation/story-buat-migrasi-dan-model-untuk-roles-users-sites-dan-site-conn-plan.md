@@ -3,7 +3,7 @@ title: '1.1 — Migrations and models: roles, users, sites, site_connections'
 type: 'feature'
 ticket: '1'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'e1008d8'
 route: 'full'
 route_source: 'auto'

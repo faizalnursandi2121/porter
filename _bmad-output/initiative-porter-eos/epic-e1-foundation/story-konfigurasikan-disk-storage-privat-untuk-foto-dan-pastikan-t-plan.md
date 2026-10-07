@@ -3,7 +3,7 @@ title: '1.7 — Private photo disk: unreachable from the public root'
 type: 'feature'
 ticket: '7'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '39dc637'
 route: 'oneshot'
 route_source: 'auto'

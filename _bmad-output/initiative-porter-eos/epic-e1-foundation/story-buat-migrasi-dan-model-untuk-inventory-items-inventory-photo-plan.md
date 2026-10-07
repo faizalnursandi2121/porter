@@ -3,7 +3,7 @@ title: '1.3 — Migrations and models: inventory_items, inventory_photos, materi
 type: 'feature'
 ticket: '3'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '9a65f9d'
 route: 'full'
 route_source: 'auto'

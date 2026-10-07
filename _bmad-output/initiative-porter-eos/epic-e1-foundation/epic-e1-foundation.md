@@ -8,6 +8,7 @@ covers: [CAP-10]
 after: []
 assignee: ""
 risk: medium
+status: done
 ---
 
 # Schema, models, seeders, timezone helper, private disk

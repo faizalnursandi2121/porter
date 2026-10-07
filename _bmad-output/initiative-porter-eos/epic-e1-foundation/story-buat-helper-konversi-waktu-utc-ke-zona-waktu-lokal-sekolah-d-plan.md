@@ -3,7 +3,7 @@ title: '1.6 — UTC↔site-local time helper with unit tests'
 type: 'feature'
 ticket: '6'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '39dc637'
 route: 'full'
 route_source: 'auto'
