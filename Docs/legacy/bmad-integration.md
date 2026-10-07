@@ -1,5 +1,10 @@
 # BMAD Integration — PORTER (Portal Operasional Terpadu Sekolah Rakyat)
 
+> **⚠️ ARSIP — BUKAN KEBENARAN AKTIF (sejak 2026-10-07).**
+> Dokumen ini merujuk baseline lama yang sudah diganti: `Docs/prd.md`, `Docs/backlog.md`, `Docs/api-contract.md`, `Docs/data-dictionary.md`, dan ADR kini berada di `Docs/legacy/` dan sebagian besar tidak berlaku (5 role, kontrak lama, stack lama).
+> Sumber kebenaran aktif: **`Docs/PRD/prd-porter-portal-operasional-terpadu.md`** + task list **`Docs/PRD/tasks-task-list-baru.md`** — lihat `Docs/README.md`.
+> Keputusan eksekusi saat ini: cukup omp (Oh My Pi), tanpa BMAD — lihat diskusi 2026-10-07.
+
 Panduan menjalankan BMAD Method di repository ini. **Dokumentasi existing adalah single source of truth.** Agent BMAD tidak menghasilkan ulang PRD/architecture — mereka mengonsumsi dokumen yang sudah final.
 
 ## 1. Aturan utama (berlaku untuk semua persona BMAD)
