@@ -6,6 +6,7 @@ use Database\Factories\AttendanceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -60,8 +61,9 @@ class Attendance extends Model
         return $this->belongsTo(Site::class);
     }
 
-    public function dailyReport(): BelongsTo
+    // FK lives on daily_reports.attendance_id (report references the day's attendance).
+    public function dailyReport(): HasOne
     {
-        return $this->belongsTo(DailyReport::class);
+        return $this->hasOne(DailyReport::class, 'attendance_id');
     }
 }

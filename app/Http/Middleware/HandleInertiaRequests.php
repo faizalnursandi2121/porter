@@ -41,9 +41,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 // Role user untuk gating menu launcher (single role per user — PRD §4).
+                // Code string (bukan model Role) — kontrak FE: types/auth.ts role?: string.
                 // Saat spatie/laravel-permission ter-install, sumber ini berpindah ke
                 // $user->getRoleNames() tanpa mengubah kontrak frontend.
-                'role' => $request->user()?->role,
+                'role' => $request->user()?->role?->code,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

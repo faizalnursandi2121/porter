@@ -29,18 +29,21 @@ test('no public storage symlink exists', function () {
 test('private files are not served over http', function () {
     Storage::disk('local')->put('smoke/private-probe.txt', 'secret');
 
-    $response = $this->get('/storage/smoke/private-probe.txt');
-
-    $response->assertNotFound();
-
-    Storage::disk('local')->delete('smoke/private-probe.txt');
+    try {
+        $this->get('/storage/smoke/private-probe.txt')->assertNotFound();
+    } finally {
+        Storage::disk('local')->delete('smoke/private-probe.txt');
+    }
 });
 
 test('private files read and write through the disk api', function () {
-    Storage::disk('local')->put('smoke/api-probe.txt', 'porter');
+    try {
+        Storage::disk('local')->put('smoke/api-probe.txt', 'porter');
 
-    expect(Storage::disk('local')->get('smoke/api-probe.txt'))->toBe('porter');
+        expect(Storage::disk('local')->get('smoke/api-probe.txt'))->toBe('porter');
+    } finally {
+        Storage::disk('local')->delete('smoke/api-probe.txt');
+    }
 
-    Storage::disk('local')->delete('smoke/api-probe.txt');
     expect(Storage::disk('local')->exists('smoke/api-probe.txt'))->toBeFalse();
 });
