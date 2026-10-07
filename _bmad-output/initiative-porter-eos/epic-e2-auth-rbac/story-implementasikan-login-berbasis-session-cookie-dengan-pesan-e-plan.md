@@ -48,10 +48,10 @@ context: []
 
 ## Implementation Notes
 
-- **Laravel 13 API change found**: `Limit::decayMinutes()` does NOT exist (Laravel ≤12 fluent API). Correct form: `Limit::perMinute(5, decayMinutes: 15)` (decay is the static factory's 2nd arg). Recorded because every future rate limiter in this repo hits the same trap.
-- FR-4 verbatim message via `lang/en/auth.php`: `failed`, `password`, AND `throttle` all = "Email atau kata sandi salah" — the throttle message must not reveal account existence (no oracle). Verified `trans()` resolves.
+- Laravel 13 gotcha found: `Limit::decayMinutes()` does NOT exist (Laravel ≤12 fluent API) — correct form is `Limit::perMinute(5, decayMinutes: 15)`. Recorded because every future rate limiter in this repo hits the same trap.
+- FR-4 verbatim message via `lang/en/auth.php`: `failed`, `password`, AND `throttle` all = "Email or password is incorrect" — the throttle message must not reveal account existence (no oracle). Verified `trans()` resolves.
 - Lockout semantics: limiter keyed `email|ip` (Fortify default) → 5 failures lock that pair for 15 min; different account from same IP unaffected (test covers); correct password inside window still fails (test covers); works after 16 min (`travel()` test covers).
-- FR-2 consistency fix in this story: disabled `Features::registration()` (self-registration is prohibited); removed register routes/page/links (login.tsx "Contact your supervisor", welcome.tsx Register button) + deleted `RegistrationTest` (tested a feature that must not exist). Wayfinder regenerated.
+- FR-2 consistency fix in this story: disabled `Features::registration()` (self-registration is prohibited); removed register routes/page/links + deleted `RegistrationTest` (tested a feature that must not exist). Wayfinder regenerated.
 - Assertion style note: `assertInvalid('email', msg)` fails on Fortify login because Inertia's exception handler flattens session errors for the page component — use `assertSessionHasErrors(['email' => msg])`.
 - Verification: 10/10 AuthenticationTest (incl. 3 new FR-4 tests), suite 88/88, Pint clean, build green.
 
