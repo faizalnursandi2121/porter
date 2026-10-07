@@ -12,7 +12,7 @@ test('role seeder creates the four fixed roles idempotently', function () {
     $this->seed(RoleSeeder::class);
 
     expect(Role::count())->toBe(4)
-        ->and(Role::where('code', Role::SUPERVISOR)->first()->label)->toBe('Supervisi')
+        ->and(Role::where('code', Role::SUPERVISI)->first()->label)->toBe('Supervisi')
         ->and(Role::where('code', Role::ADMINISTRATOR)->first()->label)->toBe('Administrator');
 
     $this->seed(RoleSeeder::class);

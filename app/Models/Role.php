@@ -18,7 +18,7 @@ class Role extends Model
 
     public const EOS = 'EOS';
 
-    public const SUPERVISOR = 'SUPERVISOR';
+    public const SUPERVISI = 'SUPERVISI';
 
     public const HR = 'HR';
 

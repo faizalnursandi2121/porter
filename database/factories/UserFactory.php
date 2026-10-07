@@ -65,7 +65,7 @@ class UserFactory extends Factory
             ['code' => $code],
             ['label' => match ($code) {
                 Role::EOS => 'EOS',
-                Role::SUPERVISOR => 'Supervisi',
+                Role::SUPERVISI => 'Supervisi',
                 Role::HR => 'HR',
                 Role::ADMINISTRATOR => 'Administrator',
             }],

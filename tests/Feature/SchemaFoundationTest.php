@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 test('roles table seeds the four fixed roles', function () {
     $roles = Role::factory()->count(4)->sequence(
         ['code' => Role::EOS, 'label' => 'EOS'],
-        ['code' => Role::SUPERVISOR, 'label' => 'Supervisi'],
+        ['code' => Role::SUPERVISI, 'label' => 'Supervisi'],
         ['code' => Role::HR, 'label' => 'HR'],
         ['code' => Role::ADMINISTRATOR, 'label' => 'Administrator'],
     )->create();
 
     expect($roles->pluck('code')->sort()->values()->all())
-        ->toBe([Role::ADMINISTRATOR, Role::EOS, Role::HR, Role::SUPERVISOR])
-        ->and(Role::where('code', Role::SUPERVISOR)->first()->label)->toBe('Supervisi');
+        ->toBe([Role::ADMINISTRATOR, Role::EOS, Role::HR, Role::SUPERVISI])
+        ->and(Role::where('code', Role::SUPERVISI)->first()->label)->toBe('Supervisi');
 });
 
 test('role codes are unique', function () {

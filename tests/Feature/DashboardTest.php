@@ -32,7 +32,7 @@ class DashboardTest extends TestCase
     {
         $this->seed(InitialSeeder::class);
 
-        foreach ([Role::EOS, Role::SUPERVISOR, Role::HR, Role::ADMINISTRATOR] as $code) {
+        foreach ([Role::EOS, Role::SUPERVISI, Role::HR, Role::ADMINISTRATOR] as $code) {
             $user = User::factory()->withRole($code)->create();
             $this->actingAs($user);
 
