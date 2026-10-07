@@ -14,11 +14,12 @@ return [
     */
 
     // FR-4: one generic message for every failure mode — no hint which part failed,
-    // no account-existence oracle. Used for both wrong password and unknown email.
-    'failed' => 'Email atau kata sandi salah',
-    'password' => 'Email atau kata sandi salah',
+    // no account-existence oracle. English per ui-design.md copy rule (PRD decision #19:
+    // FR-4's Indonesian quoted string is superseded by the locked English UI copy).
+    'failed' => 'Email or password is incorrect',
+    'password' => 'Email or password is incorrect',
 
     // FR-4: the lockout must not reveal whether the account exists.
-    'throttle' => 'Email atau kata sandi salah',
+    'throttle' => 'Email or password is incorrect',
 
 ];

@@ -64,7 +64,7 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         // FR-4: one generic message — no hint which part failed.
-        $response->assertSessionHasErrors(['email' => 'Email atau kata sandi salah']);
+        $response->assertSessionHasErrors(['email' => 'Email or password is incorrect']);
     }
 
     public function test_unknown_email_gets_the_same_generic_error()
@@ -76,7 +76,7 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         // FR-4: no account-existence oracle.
-        $response->assertSessionHasErrors(['email' => 'Email atau kata sandi salah']);
+        $response->assertSessionHasErrors(['email' => 'Email or password is incorrect']);
     }
 
     public function test_users_can_logout()

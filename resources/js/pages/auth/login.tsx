@@ -90,10 +90,6 @@ export default function Login({ status, canResetPassword }: Props) {
                                 Log in
                             </Button>
                         </div>
-
-                        <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account? Contact your supervisor.
-                        </div>
                     </>
                 )}
             </Form>
