@@ -117,7 +117,10 @@ export default function UserManagement() {
     }
 
     return (
-        <ModuleLayout title="Users">
+        <ModuleLayout
+            title="Users"
+            description="Accounts for every PORTER role — create, review, and reset access"
+        >
             <Head title="Users" />
 
             <div className="space-y-6">
