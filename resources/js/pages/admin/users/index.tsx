@@ -119,7 +119,7 @@ export default function UserManagement() {
     return (
         <ModuleLayout
             title="Users"
-            description="Accounts for every PORTER role — create, review, and reset access"
+            description="Manage user accounts, roles, and site placements"
         >
             <Head title="Users" />
 
