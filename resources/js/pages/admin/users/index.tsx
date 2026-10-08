@@ -361,8 +361,9 @@ function ResetPasswordMenuItem({
                             Reset password for {userName}?
                         </DialogTitle>
                         <DialogDescription>
-                            A new temporary password is issued and the account
-                            must change it at next login. This cannot be undone.
+                            A new temporary password is issued and shown once
+                            after this. Share it with {userName} — the account
+                            must change it at next login.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2">
@@ -382,7 +383,7 @@ function ResetPasswordMenuItem({
                                 });
                             }}
                         >
-                            Issue temporary password
+                            Reset password
                         </Button>
                     </DialogFooter>
                 </DialogContent>
