@@ -1,7 +1,8 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { MoreHorizontal, KeyRound, Search, UserPlus, X } from "lucide-react";
+import { KeyRound, Search, UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import ModuleLayout from "@/layouts/module-layout";
+import { RowActions } from "@/components/row-actions";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { index as usersIndex } from "@/actions/App/Http/Controllers/UserManagementController";
 import { resetPassword } from "@/actions/App/Http/Controllers/UserManagementController";
@@ -20,12 +21,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
     Table,
     TableBody,
@@ -243,31 +238,27 @@ export default function UserManagement() {
                                             </TableCell>
                                             {canManageUsers && (
                                                 <TableCell>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                            asChild
-                                                        >
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon-sm"
-                                                            >
-                                                                <MoreHorizontal className="size-4" />
-                                                                <span className="sr-only">
-                                                                    Open actions
-                                                                    for{" "}
-                                                                    {user.name}
-                                                                </span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <ResetPasswordMenuItem
-                                                                userId={user.id}
-                                                                userName={
-                                                                    user.name
-                                                                }
+                                                    <ResetPasswordMenuItem
+                                                        trigger={
+                                                            <RowActions
+                                                                label={`Open actions for ${user.name}`}
+                                                                actions={[
+                                                                    {
+                                                                        label: 'Reset password',
+                                                                        icon: (
+                                                                            <KeyRound className="size-4" />
+                                                                        ),
+                                                                        onSelect: () =>
+                                                                            setConfirmOpen(
+                                                                                true,
+                                                                            ),
+                                                                    },
+                                                                ]}
                                                             />
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                        }
+                                                        userId={user.id}
+                                                        userName={user.name}
+                                                    />
                                                 </TableCell>
                                             )}
                                         </TableRow>
@@ -334,9 +325,11 @@ export default function UserManagement() {
 }
 
 function ResetPasswordMenuItem({
+    trigger,
     userId,
     userName,
 }: {
+    trigger: React.ReactNode;
     userId: number;
     userName: string;
 }) {
@@ -344,16 +337,7 @@ function ResetPasswordMenuItem({
 
     return (
         <>
-            <DropdownMenuItem
-                onSelect={(event) => {
-                    event.preventDefault();
-                    setConfirmOpen(true);
-                }}
-            >
-                <KeyRound className="size-4" />
-                Reset password
-            </DropdownMenuItem>
-
+            {trigger}
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent>
                     <DialogHeader>

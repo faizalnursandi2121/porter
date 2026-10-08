@@ -2,6 +2,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { MapPin, Plus, Search, Power } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import ModuleLayout from '@/layouts/module-layout';
+import { RowActions } from '@/components/row-actions';
 import { index as sitesIndex } from '@/actions/App/Http/Controllers/SiteMasterController';
 import { toggleActive as toggleActiveAction } from '@/actions/App/Http/Controllers/SiteMasterController';
 import SiteFormDialog, {
@@ -267,31 +268,30 @@ export default function SiteMaster() {
                                         </TableCell>
                                         {canManageSites && (
                                             <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            openEdit(site)
-                                                        }
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon-sm"
-                                                        aria-label={
-                                                            site.is_active
-                                                                ? `Deactivate ${site.name}`
-                                                                : `Activate ${site.name}`
-                                                        }
-                                                        onClick={() =>
-                                                            toggleActive(site)
-                                                        }
-                                                    >
-                                                        <Power className="size-4" />
-                                                    </Button>
-                                                </div>
+                                                <RowActions
+                                                    label={`Open actions for ${site.name}`}
+                                                    actions={[
+                                                        {
+                                                            label: 'Edit',
+                                                            onSelect: () =>
+                                                                openEdit(site),
+                                                        },
+                                                        {
+                                                            label: site.is_active
+                                                                ? 'Deactivate'
+                                                                : 'Activate',
+                                                            icon: (
+                                                                <Power className="size-4" />
+                                                            ),
+                                                            destructive:
+                                                                site.is_active,
+                                                            onSelect: () =>
+                                                                toggleActive(
+                                                                    site,
+                                                                ),
+                                                        },
+                                                    ]}
+                                                />
                                             </TableCell>
                                         )}
                                     </TableRow>

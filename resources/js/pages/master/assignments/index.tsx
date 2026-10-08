@@ -2,12 +2,13 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 import ModuleLayout from '@/layouts/module-layout';
+import { RowActions } from '@/components/row-actions';
 import {
     store as storeAssignment,
     transfer as transferAssignment,
     end as endAssignment,
 } from '@/actions/App/Http/Controllers/AssignmentController';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
@@ -15,7 +16,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import {
     Table,
     TableBody,
@@ -168,48 +168,42 @@ export default function AssignmentIndex() {
                                             </TableCell>
                                             {canManagePlacements && (
                                                 <TableCell>
-                                                    <div className="flex items-center gap-1">
-                                                        {active ? (
-                                                            <>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        openTransfer(
-                                                                            eos.id,
-                                                                            active.site_id,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    Transfer
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        endPlacement(
-                                                                            active.id,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    End
-                                                                </Button>
-                                                            </>
-                                                        ) : (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    openCreate(
-                                                                        eos.id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Plus className="size-4" />
-                                                                Place
-                                                            </Button>
-                                                        )}
-                                                    </div>
+                                                    <RowActions
+                                                        label={`Open actions for ${eos.name}`}
+                                                        actions={[
+                                                            ...(active
+                                                                ? [
+                                                                      {
+                                                                          label: 'Transfer',
+                                                                          onSelect: () =>
+                                                                              openTransfer(
+                                                                                  eos.id,
+                                                                                  active.site_id,
+                                                                              ),
+                                                                      },
+                                                                      {
+                                                                          label: 'End placement',
+                                                                          destructive: true,
+                                                                          onSelect: () =>
+                                                                              endPlacement(
+                                                                                  active.id,
+                                                                              ),
+                                                                      },
+                                                                  ]
+                                                                : [
+                                                                      {
+                                                                          label: 'Place at school',
+                                                                          icon: (
+                                                                              <Plus className="size-4" />
+                                                                          ),
+                                                                          onSelect: () =>
+                                                                              openCreate(
+                                                                                  eos.id,
+                                                                              ),
+                                                                      },
+                                                                  ]),
+                                                        ]}
+                                                    />
                                                 </TableCell>
                                             )}
                                         </TableRow>
