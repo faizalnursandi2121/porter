@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MoreHorizontal, KeyRound, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 import { resetPassword } from '@/actions/App/Http/Controllers/UserManagementController';
 import CreateUserDialog from '@/pages/admin/users/create';
 import TempPasswordDialog, {
