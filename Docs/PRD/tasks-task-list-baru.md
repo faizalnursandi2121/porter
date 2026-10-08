@@ -58,13 +58,13 @@ Setiap subtask yang sudah selesai harus ditandai dengan mengubah `- [ ]` menjadi
   - [x] 2.6 Buat halaman manajemen akun bagi Supervisi dan Administrator, termasuk pembuatan akun EOS dengan penempatan sekolah wajib.
   - [x] 2.7 Tulis test fitur yang memverifikasi setiap peran hanya dapat mengakses fitur sesuai kewenangannya.
 
-- [ ] 3.0 Mengelola master data site dan penempatan EOS beserta riwayatnya
-  - [ ] 3.1 Buat CRUD master data site (nama, alamat, koordinat, zona waktu, provider utama/backup) khusus Administrator.
-  - [ ] 3.2 Implementasikan penonaktifan site tanpa menghapus data historis sesuai FR-36.
-  - [ ] 3.3 Implementasikan pembuatan penempatan EOS dengan validasi satu EOS satu penugasan aktif dan satu sekolah satu EOS aktif.
-  - [ ] 3.4 Implementasikan pemindahan EOS dan pengakhiran penugasan dengan penyimpanan riwayat (tanggal mulai dan selesai).
-  - [ ] 3.5 Catat setiap perubahan penempatan ke audit log beserta nilai sebelum dan sesudah.
-  - [ ] 3.6 Tulis test fitur untuk aturan penempatan tunggal dan penyimpanan riwayat penugasan.
+- [x] 3.0 Mengelola master data site dan penempatan EOS beserta riwayatnya
+  - [x] 3.1 Buat CRUD master data site (nama, alamat, koordinat, zona waktu, provider utama/backup) khusus Administrator.
+  - [x] 3.2 Implementasikan penonaktifan site tanpa menghapus data historis sesuai FR-36.
+  - [x] 3.3 Implementasikan pembuatan penempatan EOS dengan validasi satu EOS satu penugasan aktif dan satu sekolah satu EOS aktif.
+  - [x] 3.4 Implementasikan pemindahan EOS dan pengakhiran penugasan dengan penyimpanan riwayat (tanggal mulai dan selesai).
+  - [x] 3.5 Catat setiap perubahan penempatan ke audit log beserta nilai sebelum dan sesudah.
+  - [x] 3.6 Tulis test fitur untuk aturan penempatan tunggal dan penyimpanan riwayat penugasan.
 
 - [ ] 4.0 Mengimplementasikan absensi EOS (selfie + GPS) dengan aturan gate Daily Report
   - [ ] 4.1 Buat halaman absensi mobile-first dengan tombol besar, pengambilan selfie, dan pembacaan koordinat GPS.

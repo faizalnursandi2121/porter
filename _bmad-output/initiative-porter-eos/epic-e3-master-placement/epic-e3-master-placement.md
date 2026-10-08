@@ -8,6 +8,7 @@ covers: [CAP-8, CAP-1]
 after: []
 assignee: ""
 risk: medium
+status: done
 ---
 
 # Site master data and EOS placement
