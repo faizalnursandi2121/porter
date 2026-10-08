@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MoreHorizontal, KeyRound, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import ModuleLayout from '@/layouts/module-layout';
 import { resetPassword } from '@/actions/App/Http/Controllers/UserManagementController';
 import CreateUserDialog from '@/pages/admin/users/create';
 import TempPasswordDialog, {
@@ -93,23 +94,11 @@ export default function UserManagement() {
     );
 
     return (
-        <>
+        <ModuleLayout title="Users">
             <Head title="Users" />
 
             <div className="space-y-6">
                 <header className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-0.5">
-                        <h1 className="text-xl font-semibold tracking-tight">
-                            Users
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Accounts for every PORTER role
-                            {canManageUsers
-                                ? ' — create accounts and reset passwords.'
-                                : '.'}
-                        </p>
-                    </div>
-
                     {canManageUsers && (
                         <CreateUserDialog roles={roles} sites={sites} />
                     )}
@@ -265,7 +254,7 @@ export default function UserManagement() {
                 tempPassword={tempPassword}
                 onClose={clearTempPassword}
             />
-        </>
+        </ModuleLayout>
     );
 }
 
