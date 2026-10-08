@@ -51,6 +51,49 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * FR-1: role membership check; call sites pass Role:: constants, never
+     * string literals.
+     */
+    public function hasRole(string ...$codes): bool
+    {
+        return in_array($this->role?->code, $codes, true);
+    }
+
+    /** FR-1: shortcut for the EOS launcher area. */
+    public function isEos(): bool
+    {
+        return $this->hasRole(Role::EOS);
+    }
+
+    /** FR-1: shortcut for the Supervisi launcher area. */
+    public function isSupervisi(): bool
+    {
+        return $this->hasRole(Role::SUPERVISI);
+    }
+
+    /** FR-1: shortcut for the HR area. */
+    public function isHr(): bool
+    {
+        return $this->hasRole(Role::HR);
+    }
+
+    /** FR-1/FR-34: shortcut for Administrator-only management areas. */
+    public function isAdministrator(): bool
+    {
+        return $this->hasRole(Role::ADMINISTRATOR);
+    }
+
+    /**
+     * PRD: Administrator has every Supervisi capability plus template,
+     * master-data and audit-log management — Supervisi-area access is
+     * therefore SUPERVISI or ADMINISTRATOR.
+     */
+    public function hasSupervisiAccess(): bool
+    {
+        return $this->hasRole(Role::SUPERVISI, Role::ADMINISTRATOR);
+    }
+
+    /**
      * FR-4: whether the account is inside its lockout window.
      */
     public function isLockedUntil(): bool
