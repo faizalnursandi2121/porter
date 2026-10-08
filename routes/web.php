@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\SiteMasterController;
 use App\Http\Controllers\UserManagementController;
@@ -67,6 +68,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/supervisi/master/sites/{site}/toggle-active', [SiteMasterController::class, 'toggleActive'])
             ->name('master.sites.toggle-active');
     });
+});
+
+// 3.3/3.4/3.5: EOS placements (FR-3) — Supervisi + Administrator manage;
+// route middleware is the first gate, request authorize() the second.
+Route::middleware(['auth', 'verified', 'role:'.Role::SUPERVISI.','.Role::ADMINISTRATOR])->group(function () {
+    Route::get('/supervisi/master/assignments', [AssignmentController::class, 'index'])
+        ->name('master.assignments.index');
+
+    Route::post('/supervisi/master/assignments', [AssignmentController::class, 'store'])
+        ->name('master.assignments.store');
+
+    Route::post('/supervisi/master/assignments/{assignment}/transfer', [AssignmentController::class, 'transfer'])
+        ->name('master.assignments.transfer');
+
+    Route::post('/supervisi/master/assignments/{assignment}/end', [AssignmentController::class, 'end'])
+        ->name('master.assignments.end');
 });
 
 require __DIR__.'/settings.php';
