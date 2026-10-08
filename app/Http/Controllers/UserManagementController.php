@@ -23,7 +23,7 @@ class UserManagementController extends Controller
      * Administrator — users with their role and, for EOS, the active
      * school placement.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $users = User::query()
             ->with([
@@ -31,6 +31,21 @@ class UserManagementController extends Controller
                 'assignments' => fn ($query) => $query->whereNull('ended_at')->select(['id', 'user_id', 'site_id']),
                 'assignments.site' => fn ($query) => $query->select(['id', 'name']),
             ])
+            // Server-side search: one query matches name, email, role, and site.
+            ->when(
+                $request->string('q')->trim(),
+                fn ($query, $term) => $query->where(
+                    fn ($scope) => $scope
+                        ->whereAny(['name', 'email'], 'ilike', "%{$term}%")
+                        ->orWhereHas('role', fn ($role) => $role->where('label', 'ilike', "%{$term}%"))
+                        ->orWhereHas(
+                            'assignments',
+                            fn ($assignment) => $assignment
+                                ->whereNull('ended_at')
+                                ->whereHas('site', fn ($site) => $site->where('name', 'ilike', "%{$term}%")),
+                        ),
+                ),
+            )
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
@@ -49,6 +64,7 @@ class UserManagementController extends Controller
                 ['code' => Role::HR, 'label' => 'HR'],
                 ['code' => Role::ADMINISTRATOR, 'label' => 'Administrator'],
             ]),
+            'filter' => ['q' => $request->string('q')->trim()],
             // Write actions stay Administrator-only; Supervisi is read-only
             // (PRD matrix) — the page hides create/reset controls accordingly.
             'canManageUsers' => auth()->user()?->isAdministrator() ?? false,

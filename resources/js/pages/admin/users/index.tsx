@@ -1,7 +1,9 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MoreHorizontal, KeyRound, UserPlus } from 'lucide-react';
+import { MoreHorizontal, KeyRound, Search, UserPlus, X } from 'lucide-react';
 import { useState } from 'react';
 import ModuleLayout from '@/layouts/module-layout';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
+import { index as usersIndex } from '@/actions/App/Http/Controllers/UserManagementController';
 import { resetPassword } from '@/actions/App/Http/Controllers/UserManagementController';
 import CreateUserDialog from '@/pages/admin/users/create';
 import TempPasswordDialog, {
@@ -9,6 +11,7 @@ import TempPasswordDialog, {
 } from '@/pages/admin/users/temp-password-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Dialog,
     DialogContent,
@@ -67,6 +70,7 @@ type Props = {
     sites: SiteOption[];
     roles: RoleOption[];
     canManageUsers: boolean;
+    filter?: { q?: string | null };
 };
 
 const roleBadgeVariant: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
@@ -86,35 +90,94 @@ export default function UserManagement() {
     const { props } = usePage<
         Props & { flash?: { temp_password?: string | null } }
     >();
-    const { users, sites, roles, canManageUsers } = props;
+    const { users, sites, roles, canManageUsers, filter } = props;
 
     // One-shot temp password from create/reset; the server only flashes it.
     const [tempPassword, clearTempPassword] = useTempPasswordFlash(
         props.flash?.temp_password,
     );
 
+    // Server-side search: debounced term drives ?q= via Inertia partial reload.
+    const [searchTerm, setSearchTerm] = useState(filter?.q ?? '');
+    const debouncedTerm = useDebouncedValue(searchTerm, 300);
+
+    if ((debouncedTerm || '') !== (filter?.q || '')) {
+        router.get(
+            usersIndex.url(),
+            debouncedTerm ? { q: debouncedTerm } : {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ['users', 'filter'],
+            },
+        );
+    }
+
     return (
         <ModuleLayout title="Users">
             <Head title="Users" />
 
             <div className="space-y-6">
-                <header className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="relative w-full max-w-sm">
+                        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) =>
+                                setSearchTerm(event.target.value)
+                            }
+                            placeholder="Search name, email, role, site…"
+                            aria-label="Search users"
+                            className="pl-9"
+                        />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchTerm('')}
+                                aria-label="Clear search"
+                                className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        )}
+                    </div>
+
                     {canManageUsers && (
                         <CreateUserDialog roles={roles} sites={sites} />
                     )}
-                </header>
+                </div>
 
                 {users.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
-                        <UserPlus className="size-8 text-muted-foreground" />
-                        <p className="font-medium">No users yet</p>
-                        <p className="text-sm text-muted-foreground">
-                            No users yet. Create the first account.
-                        </p>
-                        {canManageUsers && (
-                            <CreateUserDialog roles={roles} sites={sites} />
-                        )}
-                    </div>
+                    searchTerm ? (
+                        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
+                            <Search className="size-8 text-muted-foreground" />
+                            <p className="font-medium">
+                                No results for “{searchTerm}”
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                Check the spelling or try a different term.
+                            </p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSearchTerm('')}
+                            >
+                                Clear search
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
+                            <UserPlus className="size-8 text-muted-foreground" />
+                            <p className="font-medium">No users yet</p>
+                            <p className="text-sm text-muted-foreground">
+                                Accounts for every PORTER role live here.
+                            </p>
+                            {canManageUsers && (
+                                <CreateUserDialog roles={roles} sites={sites} />
+                            )}
+                        </div>
+                    )
                 ) : (
                     <div className="overflow-x-auto rounded-lg border">
                         <Table>
