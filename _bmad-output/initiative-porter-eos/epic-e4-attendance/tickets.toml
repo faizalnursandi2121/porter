@@ -1,0 +1,156 @@
+# tickets.toml — epic 4 entries in build order. Entry id = subtask sub-number ("1a" = subtask 4.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat halaman absensi mobile-first dengan tombol besar, pengambilan selfie, dan pembacaan koordinat GPS."
+description = "Delivers subtask 4.1: Buat halaman absensi mobile-first dengan tombol besar, pengambilan selfie, dan pembacaan koordinat GPS."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.1", "CAP-2"]
+after = ["epic-e1-foundation", "epic-e2-auth-rbac", "epic-e3-master-placement"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = "1a"
+type = "story"
+title = "Implementasikan overlay panduan wajah (lingkaran) + deteksi ada-wajah via FaceDetector API (progressive enhancement): tombol jepret aktif saat wajah terdeteksi; tanpa API, jepret aktif setelah kamera stabil (FR-5a)."
+description = "Delivers subtask 4.1a: Implementasikan overlay panduan wajah (lingkaran) + deteksi ada-wajah via FaceDetector API (progressive enhancement): tombol jepret aktif saat wajah terdeteksi; tanpa API, jepret aktif setelah kamera stabil (FR-5a)."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.1a", "CAP-2"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = "1b"
+type = "story"
+title = "Implementasikan server-side watermark pada selfie sebelum simpan (FR-5b): baris teks bawah foto berisi nama site + tanggal-jam lokal site + koordinat GPS + accuracy, dicap saat server menerima. Gunakan Laravel `Image` facade (Intervention v4, driver GD — sudah tersedia) + bundle font TTF internal (mis. DejaVuSans); jangan andalkan font OS. Tulis test fitur: file tersimpan berbeda dari original (watermark applied) & metadata teks sesuai data record."
+description = "Delivers subtask 4.1b: Implementasikan server-side watermark pada selfie sebelum simpan (FR-5b): baris teks bawah foto berisi nama site + tanggal-jam lokal site + koordinat GPS + accuracy, dicap saat server menerima. Gunakan Laravel `Image` facade (Intervention v4, driver GD — sudah tersedia) + bundle font TTF internal (mis. DejaVuSans); jangan andalkan font OS. Tulis test fitur: file tersimpan berbeda dari original (watermark applied) & metadata teks sesuai data record."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.1b", "CAP-2"]
+after = ["1a"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Tampilkan pesan \"No internet connection. Attendance requires an internet connection.\" dan nonaktifkan tombol absen saat offline."
+description = "Delivers subtask 4.2: Tampilkan pesan \"No internet connection. Attendance requires an internet connection.\" dan nonaktifkan tombol absen saat offline."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.2", "CAP-2"]
+after = ["1b"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Tampilkan panduan aktivasi izin saat izin kamera atau lokasi ditolak, dan hentikan alur absensi."
+description = "Delivers subtask 4.3: Tampilkan panduan aktivasi izin saat izin kamera atau lokasi ditolak, dan hentikan alur absensi."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.3", "CAP-2"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Implementasikan absen masuk dengan validasi anti absen ganda per hari dan status \"Checked In\"."
+description = "Delivers subtask 4.4: Implementasikan absen masuk dengan validasi anti absen ganda per hari dan status \"Checked In\"."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.4", "CAP-2"]
+after = [3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Implementasikan absen pulang dengan penolakan jika belum check-in dan pesan \"You haven't checked in today.\""
+description = "Delivers subtask 4.5: Implementasikan absen pulang dengan penolakan jika belum check-in dan pesan \"You haven't checked in today.\"."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.5", "CAP-2"]
+after = [4]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Implementasikan gate absen pulang yang mengarahkan EOS melengkapi Daily Report bila laporan belum berstatus \"Submitted\"."
+description = "Delivers subtask 4.6: Implementasikan gate absen pulang yang mengarahkan EOS melengkapi Daily Report bila laporan belum berstatus \"Submitted\"."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.6", "CAP-2"]
+after = [5]
+hitl = false
+risk = "high"
+notes = ["Report status vocabulary (Draft/Submitted/Needs Revision) comes from spec CAP-4/fr-catalog; no dependency on epic 5 code. The contract story in story-contract.md section 3 fixes shapes early; the E2E joins both epics."]
+
+[[entry]]
+id = 7
+type = "story"
+title = "Implementasikan status \"Completed\" setelah absen pulang dan tolak percobaan absen pulang berikutnya pada hari yang sama."
+description = "Delivers subtask 4.7: Implementasikan status \"Completed\" setelah absen pulang dan tolak percobaan absen pulang berikutnya pada hari yang sama."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.7", "CAP-2"]
+after = [6]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Tambahkan indikator loading, pencegahan kirim ganda, dan tombol \"Try Again\" yang mempertahankan selfie/GPS saat unggah gagal."
+description = "Delivers subtask 4.8: Tambahkan indikator loading, pencegahan kirim ganda, dan tombol \"Try Again\" yang mempertahankan selfie/GPS saat unggah gagal."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.8", "CAP-2"]
+after = [7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Tambahkan validasi server-side: absen masuk dan absen pulang harus pada tanggal lokal sekolah yang sama; tolak absen pulang yang melewati tengah malam dengan pesan yang jelas."
+description = "Delivers subtask 4.9: Tambahkan validasi server-side: absen masuk dan absen pulang harus pada tanggal lokal sekolah yang sama; tolak absen pulang yang melewati tengah malam dengan pesan yang jelas."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.9", "CAP-2"]
+after = [8]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Simpan waktu absen dalam UTC dan tampilkan waktu lokal sekolah, lalu tulis test fitur untuk seluruh aturan absensi (absen ganda, gate laporan, pulang ganda, tanggal sama)."
+description = "Delivers subtask 4.10: Simpan waktu absen dalam UTC dan tampilkan waktu lokal sekolah, lalu tulis test fitur untuk seluruh aturan absensi (absen ganda, gate laporan, pulang ganda, tanggal sama)."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.10", "CAP-2"]
+after = [9]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Jadikan aplikasi PWA installable: manifest (nama, ikon, tema), splash screen, dan service worker untuk caching aset statis — tanpa fungsi offline untuk absensi/laporan."
+description = "Delivers subtask 4.11: Jadikan aplikasi PWA installable: manifest (nama, ikon, tema), splash screen, dan service worker untuk caching aset statis — tanpa fungsi offline untuk absensi/laporan."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.11", "CAP-9"]
+after = [10]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Buat halaman Riwayat Kehadiran: EOS melihat riwayat miliknya; Supervisi/Administrator/HR melihat riwayat per EOS/per site dengan filter periode, menampilkan jam lokal, status, lokasi, dan akses foto selfie sesuai FR-48/FR-12a, beserta test hak aksesnya."
+description = "Delivers subtask 4.12: Buat halaman Riwayat Kehadiran: EOS melihat riwayat miliknya; Supervisi/Administrator/HR melihat riwayat per EOS/per site dengan filter periode, menampilkan jam lokal, status, lokasi, dan akses foto selfie sesuai FR-48/FR-12a, beserta test hak aksesnya."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["4.12", "CAP-3"]
+after = [11]
+hitl = false
+risk = "medium"

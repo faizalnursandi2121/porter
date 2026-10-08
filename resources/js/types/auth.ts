@@ -12,7 +12,7 @@ export type User = {
 
 export type Auth = {
     user: User;
-    /** Role tunggal user: SUPER_ADMIN | MANAGER | SUPERVISOR | HR | EOS (PRD §4) */
+    /** Role tunggal user: EOS | SUPERVISI | HR | ADMINISTRATOR (PRD §4) */
     role?: string;
 };
 

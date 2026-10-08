@@ -24,64 +24,64 @@ type ModuleTile = {
 // Menu launcher sesuai route baseline ui-spec.md §3; gating role (PRD §4).
 const moduleTiles: ModuleTile[] = [
     {
-        title: 'Presensi',
+        title: 'Attendance',
         href: '/eos/attendance',
         icon: MapPin,
         roles: ['EOS'],
     },
     {
-        title: 'Laporan Harian',
+        title: 'Daily Report',
         href: '/eos/daily-report/current',
         icon: ClipboardCheck,
         roles: ['EOS'],
     },
     {
-        title: 'Inventaris',
+        title: 'Inventory',
         href: '/eos/inventory/assets',
         icon: Package,
         roles: ['EOS'],
     },
     {
-        title: 'Kehadiran Site',
-        href: '/supervisor/attendance',
+        title: 'Attendance',
+        href: '/supervisi/attendance',
         icon: MapPin,
-        roles: ['SUPERVISOR'],
+        roles: ['SUPERVISI'],
     },
     {
-        title: 'Review Laporan',
-        href: '/supervisor/daily-reports',
+        title: 'Daily Reports',
+        href: '/supervisi/daily-reports',
         icon: ClipboardCheck,
-        roles: ['SUPERVISOR'],
+        roles: ['SUPERVISI'],
     },
     {
-        title: 'Inventaris Site',
-        href: '/supervisor/inventory/assets',
+        title: 'Inventory',
+        href: '/supervisi/inventory/assets',
         icon: Package,
-        roles: ['SUPERVISOR'],
+        roles: ['SUPERVISI'],
     },
     {
-        title: 'Master Site',
-        href: '/supervisor/master/sites',
+        title: 'Master Data',
+        href: '/supervisi/master/sites',
         icon: FolderGit2,
-        roles: ['SUPERVISOR', 'SUPER_ADMIN'],
+        roles: ['SUPERVISI', 'ADMINISTRATOR'],
     },
     {
-        title: 'Assignment EOS',
-        href: '/supervisor/master/assignments',
+        title: 'Assignments',
+        href: '/supervisi/master/assignments',
         icon: Users,
-        roles: ['SUPERVISOR', 'SUPER_ADMIN'],
+        roles: ['SUPERVISI', 'ADMINISTRATOR'],
     },
     {
-        title: 'Analitik',
+        title: 'Analytics',
         href: '/manager/analytics/overview',
         icon: BarChart3,
-        roles: ['MANAGER', 'SUPER_ADMIN'],
+        roles: ['SUPERVISI', 'ADMINISTRATOR'],
     },
     {
-        title: 'Manajemen User',
+        title: 'Users',
         href: '/admin/users',
         icon: UserCog,
-        roles: ['SUPER_ADMIN'],
+        roles: ['ADMINISTRATOR'],
     },
 ];
 
@@ -120,6 +120,11 @@ export default function Dashboard() {
             <div className="flex min-h-screen w-full flex-col bg-muted/30">
                 <LauncherHeader
                     auth={auth}
+                    modules={tiles.map((tile) => ({
+                        title: tile.title,
+                        href: tile.href,
+                        icon: tile.icon,
+                    }))}
                     searchItems={tiles.map((tile) => ({
                         title: tile.title,
                         href: tile.href,

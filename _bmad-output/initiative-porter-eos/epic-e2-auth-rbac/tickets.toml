@@ -1,0 +1,78 @@
+# tickets.toml — epic 2 entries in build order. Entry id = subtask sub-number ("1a" = subtask 2.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Implementasikan login berbasis session cookie dengan pesan error generik \"Email atau kata sandi salah\" sesuai FR-4."
+description = "Delivers subtask 2.1: Implementasikan login berbasis session cookie dengan pesan error generik \"Email atau kata sandi salah\" sesuai FR-4."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.1", "CAP-1"]
+after = ["epic-e1-foundation"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Implementasikan penguncian akun sementara 15 menit setelah 5 kali gagal berturut-turut beserta test fiturnya."
+description = "Delivers subtask 2.2: Implementasikan penguncian akun sementara 15 menit setelah 5 kali gagal berturut-turut beserta test fiturnya."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.2", "CAP-1"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Implementasikan alur wajib ganti kata sandi pada login pertama dan setelah reset oleh Supervisi/Administrator."
+description = "Delivers subtask 2.3: Implementasikan alur wajib ganti kata sandi pada login pertama dan setelah reset oleh Supervisi/Administrator."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.3", "CAP-1"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Implementasikan reset kata sandi via email terdaftar dan pastikan tidak ada pendaftaran mandiri."
+description = "Delivers subtask 2.4: Implementasikan reset kata sandi via email terdaftar dan pastikan tidak ada pendaftaran mandiri."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.4", "CAP-1"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Buat middleware dan policy RBAC untuk 4 peran, dengan pemeriksaan hak akses di server pada setiap request."
+description = "Delivers subtask 2.5: Buat middleware dan policy RBAC untuk 4 peran, dengan pemeriksaan hak akses di server pada setiap request."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.5", "CAP-1"]
+after = [4]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Buat halaman manajemen akun bagi Supervisi dan Administrator, termasuk pembuatan akun EOS dengan penempatan sekolah wajib."
+description = "Delivers subtask 2.6: Buat halaman manajemen akun bagi Supervisi dan Administrator, termasuk pembuatan akun EOS dengan penempatan sekolah wajib.; consumes seeded sites and the assignments schema, recording the placement reference — invariants arrive with epic 3 (3.3-3.4)"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["2.6", "CAP-1"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Tulis test fitur yang memverifikasi setiap peran hanya dapat mengakses fitur sesuai kewenangannya."
+description = "Delivers subtask 2.7: Tulis test fitur yang memverifikasi setiap peran hanya dapat mengakses fitur sesuai kewenangannya."
+verify = "New feature tests pass and pin the listed rules; prior behavior unregressed."
+covers = ["2.7", "CAP-1"]
+after = [6]
+hitl = false
+risk = "medium"

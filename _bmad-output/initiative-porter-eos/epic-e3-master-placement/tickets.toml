@@ -1,0 +1,67 @@
+# tickets.toml — epic 3 entries in build order. Entry id = subtask sub-number ("1a" = subtask 3.1a).
+
+[[entry]]
+id = 1
+type = "story"
+title = "Buat CRUD master data site (nama, alamat, koordinat, zona waktu, provider utama/backup) khusus Administrator."
+description = "Delivers subtask 3.1: Buat CRUD master data site (nama, alamat, koordinat, zona waktu, provider utama/backup) khusus Administrator."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["3.1", "CAP-8"]
+after = ["epic-e1-foundation", "epic-e2-auth-rbac"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Implementasikan penonaktifan site tanpa menghapus data historis sesuai FR-36."
+description = "Delivers subtask 3.2: Implementasikan penonaktifan site tanpa menghapus data historis sesuai FR-36."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["3.2", "CAP-8"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Implementasikan pembuatan penempatan EOS dengan validasi satu EOS satu penugasan aktif dan satu sekolah satu EOS aktif."
+description = "Delivers subtask 3.3: Implementasikan pembuatan penempatan EOS dengan validasi satu EOS satu penugasan aktif dan satu sekolah satu EOS aktif.; adds invariants over accounts created in epic 2 entry 6"
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["3.3", "CAP-1"]
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Implementasikan pemindahan EOS dan pengakhiran penugasan dengan penyimpanan riwayat (tanggal mulai dan selesai)."
+description = "Delivers subtask 3.4: Implementasikan pemindahan EOS dan pengakhiran penugasan dengan penyimpanan riwayat (tanggal mulai dan selesai)."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["3.4", "CAP-1"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Catat setiap perubahan penempatan ke audit log beserta nilai sebelum dan sesudah."
+description = "Delivers subtask 3.5: Catat setiap perubahan penempatan ke audit log beserta nilai sebelum dan sesudah."
+verify = "Feature tests for the behavior pass; UI shows FR-verbatim strings where cited; smoke on a small screen."
+covers = ["3.5", "CAP-1"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Tulis test fitur untuk aturan penempatan tunggal dan penyimpanan riwayat penugasan."
+description = "Delivers subtask 3.6: Tulis test fitur untuk aturan penempatan tunggal dan penyimpanan riwayat penugasan."
+verify = "New feature tests pass and pin the listed rules; prior behavior unregressed."
+covers = ["3.6", "CAP-1"]
+after = [5]
+hitl = false
+risk = "medium"
