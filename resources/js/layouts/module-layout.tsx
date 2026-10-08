@@ -2,23 +2,31 @@ import { Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import Heading from '@/components/heading';
 import { LauncherHeader } from '@/components/launcher-header';
 import { Button } from '@/components/ui/button';
 import { dashboard } from '@/routes';
-import type { Auth } from '@/types';
+import type { Auth, BreadcrumbItem } from '@/types';
 
 type Props = PropsWithChildren<{
     title: string;
     description?: string;
+    breadcrumbs?: BreadcrumbItem[];
 }>;
 
 /**
  * Module layout (ui-design.md §1.1/§1.3): full-page launcher header +
- * Back to Dashboard + page content. No sidebar — the dashboard launcher is
- * the navigation hub; inside a module, move around via the launcher header.
+ * Back to Dashboard + breadcrumb + page content. No sidebar — the dashboard
+ * launcher is the navigation hub; inside a module, move around via the
+ * launcher header.
  */
-export default function ModuleLayout({ title, description, children }: Props) {
+export default function ModuleLayout({
+    title,
+    description,
+    breadcrumbs = [],
+    children,
+}: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
 
     return (
@@ -36,6 +44,14 @@ export default function ModuleLayout({ title, description, children }: Props) {
                         Back to Dashboard
                     </Link>
                 </Button>
+
+                <Breadcrumbs
+                    breadcrumbs={[
+                        { title: 'Dashboard', href: dashboard() },
+                        ...breadcrumbs,
+                        { title, href: '' },
+                    ]}
+                />
 
                 <Heading title={title} description={description} />
 
