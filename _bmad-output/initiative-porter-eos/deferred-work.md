@@ -1,4 +1,8 @@
 
+## Deferred from: epic-e2-auth-rbac account management (2026-10-08)
+
+- User account edit (name/email/role) + account deactivation — PRD 2.6 only requires create + password reset; edit/deactivate agreed out of epic 2 scope. Deactivation must follow the FR-36 pattern (no hard delete — audit logs and attendance/report history reference users). A peer draft existed but was discarded by owner decision; restart from scratch when picked up. Likely home: epic 3 placement work (3.3/3.4) or a dedicated follow-up subtask.
+
 ## Deferred from: code review of epic-e1-foundation plans (2026-10-07)
 
 - Plan-doc hygiene: 1.4 frozen intent self-contradiction, stale "5 roles" in 1.1 approach, empty Plan Change Logs, dangling OK? in 1.2, risk/review front-matter mismatch — fixes edit plan docs (workflow rule).
