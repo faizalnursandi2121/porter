@@ -49,14 +49,14 @@ Setiap subtask yang sudah selesai harus ditandai dengan mengubah `- [ ]` menjadi
   - [x] 1.6 Buat helper konversi waktu UTC ke zona waktu lokal sekolah dan sebaliknya, lalu tulis test unit untuk helper tersebut.
   - [x] 1.7 Konfigurasikan disk storage privat untuk foto dan pastikan tidak ada file yang dapat diakses langsung dari direktori publik.
 
-- [ ] 2.0 Membangun autentikasi, otorisasi berbasis peran (RBAC), dan manajemen akun pengguna
-  - [ ] 2.1 Implementasikan login berbasis session cookie dengan pesan error generik "Email atau kata sandi salah" sesuai FR-4.
-  - [ ] 2.2 Implementasikan penguncian akun sementara 15 menit setelah 5 kali gagal berturut-turut beserta test fiturnya.
-  - [ ] 2.3 Implementasikan alur wajib ganti kata sandi pada login pertama dan setelah reset oleh Supervisi/Administrator.
-  - [ ] 2.4 Implementasikan reset kata sandi via email terdaftar dan pastikan tidak ada pendaftaran mandiri.
-  - [ ] 2.5 Buat middleware dan policy RBAC untuk 4 peran, dengan pemeriksaan hak akses di server pada setiap request.
-  - [ ] 2.6 Buat halaman manajemen akun bagi Supervisi dan Administrator, termasuk pembuatan akun EOS dengan penempatan sekolah wajib.
-  - [ ] 2.7 Tulis test fitur yang memverifikasi setiap peran hanya dapat mengakses fitur sesuai kewenangannya.
+- [x] 2.0 Membangun autentikasi, otorisasi berbasis peran (RBAC), dan manajemen akun pengguna
+  - [x] 2.1 Implementasikan login berbasis session cookie dengan pesan error generik "Email atau kata sandi salah" sesuai FR-4.
+  - [x] 2.2 Implementasikan penguncian akun sementara 15 menit setelah 5 kali gagal berturut-turut beserta test fiturnya.
+  - [x] 2.3 Implementasikan alur wajib ganti kata sandi pada login pertama dan setelah reset oleh Supervisi/Administrator.
+  - [x] 2.4 Implementasikan reset kata sandi via email terdaftar dan pastikan tidak ada pendaftaran mandiri.
+  - [x] 2.5 Buat middleware dan policy RBAC untuk 4 peran, dengan pemeriksaan hak akses di server pada setiap request.
+  - [x] 2.6 Buat halaman manajemen akun bagi Supervisi dan Administrator, termasuk pembuatan akun EOS dengan penempatan sekolah wajib.
+  - [x] 2.7 Tulis test fitur yang memverifikasi setiap peran hanya dapat mengakses fitur sesuai kewenangannya.
 
 - [ ] 3.0 Mengelola master data site dan penempatan EOS beserta riwayatnya
   - [ ] 3.1 Buat CRUD master data site (nama, alamat, koordinat, zona waktu, provider utama/backup) khusus Administrator.

@@ -3,7 +3,7 @@ title: '2.5 — RBAC middleware and policy for the 4 roles, checked server-side 
 type: 'feature'
 ticket: '5'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '13f26d0'
 route: 'full'
 route_source: 'auto'

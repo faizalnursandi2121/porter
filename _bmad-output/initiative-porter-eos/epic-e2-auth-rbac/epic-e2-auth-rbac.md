@@ -8,6 +8,7 @@ covers: [CAP-1]
 after: []
 assignee: ""
 risk: high
+status: done
 ---
 
 # Auth, RBAC, account management

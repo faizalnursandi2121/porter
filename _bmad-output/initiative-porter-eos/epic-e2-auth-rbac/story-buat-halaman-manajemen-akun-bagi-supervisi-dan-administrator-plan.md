@@ -3,7 +3,7 @@ title: '2.6 — Account management for Supervisi/Administrator: create EOS with 
 type: 'feature'
 ticket: '6'
 created: '2026-10-07'
-status: 'in-progress'
+status: done
 baseline_revision: '1e98d39'
 route: 'full'
 route_source: 'auto'

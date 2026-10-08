@@ -3,7 +3,7 @@ title: '2.7 — Feature tests pinning per-role access authority'
 type: 'feature'
 ticket: '7'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'b1a31ba'
 route: 'full'
 route_source: 'auto'

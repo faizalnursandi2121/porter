@@ -3,7 +3,7 @@ title: '2.4 — Password reset via emailed link to registered address'
 type: 'feature'
 ticket: '4'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'feature/porter-tooling-baseline'
 route: 'full'
 route_source: 'auto'

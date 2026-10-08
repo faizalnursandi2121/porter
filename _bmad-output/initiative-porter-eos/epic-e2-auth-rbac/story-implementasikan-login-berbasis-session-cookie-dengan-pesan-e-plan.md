@@ -3,7 +3,7 @@ title: '2.1 — Session-cookie login with FR-4 generic error'
 type: 'feature'
 ticket: '1'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '11375d8'
 route: 'full'
 route_source: 'auto'
