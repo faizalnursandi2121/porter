@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\SiteMasterController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/admin/users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
             ->name('admin.users.reset-password');
+    });
+});
+
+// 3.1/3.2: site master data (FR-34) — every role may browse (FR-1);
+// write actions stay Administrator-only (SitePolicy enforces server-side).
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/supervisi/master/sites', [SiteMasterController::class, 'index'])
+        ->middleware('role:'.Role::SUPERVISI.','.Role::ADMINISTRATOR.','.Role::HR.','.Role::EOS)
+        ->name('master.sites.index');
+
+    Route::middleware('role:'.Role::ADMINISTRATOR)->group(function () {
+        Route::post('/supervisi/master/sites', [SiteMasterController::class, 'store'])
+            ->name('master.sites.store');
+
+        Route::put('/supervisi/master/sites/{site}', [SiteMasterController::class, 'update'])
+            ->name('master.sites.update');
+
+        Route::post('/supervisi/master/sites/{site}/toggle-active', [SiteMasterController::class, 'toggleActive'])
+            ->name('master.sites.toggle-active');
     });
 });
 
