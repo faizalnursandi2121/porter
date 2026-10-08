@@ -24,8 +24,8 @@ class RoleAccessTest extends TestCase
         $this->actingAs($eos)->get('/admin/users')->assertForbidden();
     }
 
-    // FR-1: Supervisi reaches its own area — Administrator-only management
-    // stays out of reach.
+    // FR-1: Supervisi reaches its own area; 2.6 opens the account list to it
+    // read-only — creating accounts and resetting passwords stay admin-only.
     public function test_supervisi_reaches_supervisi_area_but_not_admin(): void
     {
         $supervisi = User::factory()->withRole(Role::SUPERVISI)->create();
@@ -34,7 +34,8 @@ class RoleAccessTest extends TestCase
         $this->actingAs($supervisi)->get('/supervisi/attendance')
             ->assertOk()
             ->assertSee('supervisi ok');
-        $this->actingAs($supervisi)->get('/admin/users')->assertForbidden();
+        $this->actingAs($supervisi)->get('/admin/users')->assertOk();
+        $this->actingAs($supervisi)->post('/admin/users', [])->assertForbidden();
     }
 
     // PRD: Administrator has every Supervisi capability plus user, template,

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\UserManagementController;
+use App\Models\Role;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'))->name('home');
@@ -31,8 +33,20 @@ Route::middleware(['auth', 'verified', 'role:SUPERVISI,ADMINISTRATOR'])->group(f
     Route::get('/supervisi/attendance', fn () => 'supervisi ok')->name('dev.supervisi.attendance'); // epic 4
 });
 
-Route::middleware(['auth', 'verified', 'role:ADMINISTRATOR'])->group(function () {
-    Route::get('/admin/users', fn () => 'admin ok')->name('dev.admin.users'); // epic 2.6
+// 2.6: account management. Supervisi reads the list; Administrator creates
+// accounts and resets passwords (PRD matrix — write actions are admin-only).
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/admin/users', [UserManagementController::class, 'index'])
+        ->middleware('role:'.Role::SUPERVISI.','.Role::ADMINISTRATOR)
+        ->name('admin.users.index');
+
+    Route::middleware('role:'.Role::ADMINISTRATOR)->group(function () {
+        Route::post('/admin/users', [UserManagementController::class, 'store'])
+            ->name('admin.users.store');
+
+        Route::post('/admin/users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
+            ->name('admin.users.reset-password');
+    });
 });
 
 require __DIR__.'/settings.php';
