@@ -1,17 +1,17 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MoreHorizontal, KeyRound, Search, UserPlus, X } from 'lucide-react';
-import { useState } from 'react';
-import ModuleLayout from '@/layouts/module-layout';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
-import { index as usersIndex } from '@/actions/App/Http/Controllers/UserManagementController';
-import { resetPassword } from '@/actions/App/Http/Controllers/UserManagementController';
-import CreateUserDialog from '@/pages/admin/users/create';
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import { MoreHorizontal, KeyRound, Search, UserPlus, X } from "lucide-react";
+import { useState } from "react";
+import ModuleLayout from "@/layouts/module-layout";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { index as usersIndex } from "@/actions/App/Http/Controllers/UserManagementController";
+import { resetPassword } from "@/actions/App/Http/Controllers/UserManagementController";
+import CreateUserDialog from "@/pages/admin/users/create";
 import TempPasswordDialog, {
     useTempPasswordFlash,
-} from '@/pages/admin/users/temp-password-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/pages/admin/users/temp-password-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
@@ -19,13 +19,13 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
     Table,
     TableBody,
@@ -33,8 +33,8 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/components/ui/table';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type RoleOption = {
     code: string;
@@ -73,17 +73,20 @@ type Props = {
     filter?: { q?: string | null };
 };
 
-const roleBadgeVariant: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-    ADMINISTRATOR: 'default',
-    SUPERVISI: 'secondary',
-    EOS: 'outline',
-    HR: 'destructive',
+const roleBadgeVariant: Record<
+    string,
+    "default" | "secondary" | "outline" | "destructive"
+> = {
+    ADMINISTRATOR: "default",
+    SUPERVISI: "secondary",
+    EOS: "outline",
+    HR: "destructive",
 };
 
-const dateFormatter = new Intl.DateTimeFormat('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
 });
 
 export default function UserManagement() {
@@ -98,17 +101,17 @@ export default function UserManagement() {
     );
 
     // Server-side search: debounced term drives ?q= via Inertia partial reload.
-    const [searchTerm, setSearchTerm] = useState(filter?.q ?? '');
+    const [searchTerm, setSearchTerm] = useState(filter?.q ?? "");
     const debouncedTerm = useDebouncedValue(searchTerm, 300);
 
-    if ((debouncedTerm || '') !== (filter?.q || '')) {
+    if ((debouncedTerm || "") !== (filter?.q || "")) {
         router.get(
             usersIndex.url(),
             debouncedTerm ? { q: debouncedTerm } : {},
             {
                 preserveState: true,
                 preserveScroll: true,
-                only: ['users', 'filter'],
+                only: ["users", "filter"],
             },
         );
     }
@@ -134,7 +137,7 @@ export default function UserManagement() {
                         {searchTerm && (
                             <button
                                 type="button"
-                                onClick={() => setSearchTerm('')}
+                                onClick={() => setSearchTerm("")}
                                 aria-label="Clear search"
                                 className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                             >
@@ -161,7 +164,7 @@ export default function UserManagement() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setSearchTerm('')}
+                                onClick={() => setSearchTerm("")}
                             >
                                 Clear search
                             </Button>
@@ -216,7 +219,7 @@ export default function UserManagement() {
                                                         variant={
                                                             roleBadgeVariant[
                                                                 user.role.code
-                                                            ] ?? 'outline'
+                                                            ] ?? "outline"
                                                         }
                                                     >
                                                         {user.role.label}
@@ -228,7 +231,7 @@ export default function UserManagement() {
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                {activeSite?.name ?? '—'}
+                                                {activeSite?.name ?? "—"}
                                             </TableCell>
                                             <TableCell className="whitespace-nowrap text-muted-foreground">
                                                 {dateFormatter.format(
@@ -238,7 +241,9 @@ export default function UserManagement() {
                                             {canManageUsers && (
                                                 <TableCell>
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger
+                                                            asChild
+                                                        >
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon-sm"
@@ -246,7 +251,7 @@ export default function UserManagement() {
                                                                 <MoreHorizontal className="size-4" />
                                                                 <span className="sr-only">
                                                                     Open actions
-                                                                    for{' '}
+                                                                    for{" "}
                                                                     {user.name}
                                                                 </span>
                                                             </Button>
@@ -270,45 +275,49 @@ export default function UserManagement() {
                     </div>
                 )}
 
-                {users.last_page > 1 && (
+                {users.data.length > 0 && (
                     <nav className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                            {users.from}–{users.to} of {users.total}
+                        <p className="text-sm tabular-nums text-muted-foreground">
+                            {users.last_page > 1
+                                ? `${users.from}–${users.to} of ${users.total} users`
+                                : `${users.total} user${users.total === 1 ? "" : "s"}`}
                         </p>
-                        <div className="flex items-center gap-1">
-                            {users.links.map((link, index) => {
-                                const label =
-                                    link.label
-                                        .replace('&laquo;', '‹')
-                                        .replace('&raquo;', '›')
-                                        .trim() ?? String(index);
+                        {users.last_page > 1 && (
+                            <div className="flex items-center gap-1">
+                                {users.links.map((link, index) => {
+                                    const label =
+                                        link.label
+                                            .replace("&laquo;", "‹")
+                                            .replace("&raquo;", "›")
+                                            .trim() ?? String(index);
 
-                                if (link.url === null) {
+                                    if (link.url === null) {
+                                        return (
+                                            <span
+                                                key={`${label}-${index}`}
+                                                className="px-2 text-sm text-muted-foreground"
+                                            >
+                                                {label}
+                                            </span>
+                                        );
+                                    }
+
                                     return (
-                                        <span
+                                        <Link
                                             key={`${label}-${index}`}
-                                            className="px-2 text-sm text-muted-foreground"
+                                            href={link.url}
+                                            className={cn(
+                                                "rounded-md px-2 py-1 text-sm hover:bg-accent",
+                                                link.active &&
+                                                    "bg-primary text-primary-foreground hover:bg-primary/90",
+                                            )}
                                         >
                                             {label}
-                                        </span>
+                                        </Link>
                                     );
-                                }
-
-                                return (
-                                    <Link
-                                        key={`${label}-${index}`}
-                                        href={link.url}
-                                        className={cn(
-                                            'rounded-md px-2 py-1 text-sm hover:bg-accent',
-                                            link.active &&
-                                                'bg-primary text-primary-foreground hover:bg-primary/90',
-                                        )}
-                                    >
-                                        {label}
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                                })}
+                            </div>
+                        )}
                     </nav>
                 )}
             </div>
@@ -350,8 +359,7 @@ function ResetPasswordMenuItem({
                         </DialogTitle>
                         <DialogDescription>
                             A new temporary password is issued and the account
-                            must change it at next login. This cannot be
-                            undone.
+                            must change it at next login. This cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2">
