@@ -22,8 +22,8 @@ void createInertiaApp({
             case name.startsWith('settings/'):
                 return SettingsLayout;
             // ui-design.md §1.1: no sidebar for any role. Module pages render
-            // their own ModuleLayout (launcher header + Back to Dashboard).
-            case name.startsWith('admin/'):
+            // their own ModuleLayout (launcher header + breadcrumb).
+            case name.startsWith('admin/') || name.startsWith('master/'):
                 return null;
             default:
                 return AppLayout;
