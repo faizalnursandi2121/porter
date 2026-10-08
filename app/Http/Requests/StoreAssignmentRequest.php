@@ -23,8 +23,12 @@ class StoreAssignmentRequest extends FormRequest
         return [
             'user_id' => [
                 'required',
-                Rule::exists('users', 'id')->where(fn ($query) => $query
-                    ->whereHas('role', fn ($role) => $role->where('code', Role::EOS))),
+                Rule::exists('users', 'id')->where(
+                    fn ($query) => $query->whereIn(
+                        'role_id',
+                        Role::where('code', Role::EOS)->select('id'),
+                    ),
+                ),
                 Rule::unique('assignments', 'user_id')->where(fn ($query) => $query->whereNull('ended_at')),
             ],
             'site_id' => [

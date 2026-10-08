@@ -42,6 +42,11 @@ class Site extends Model
         return $this->hasMany(SiteConnection::class);
     }
 
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
     public function primaryConnection(): ?SiteConnection
     {
         return $this->connections()->where('kind', SiteConnection::PRIMARY)->first();

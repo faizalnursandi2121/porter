@@ -51,11 +51,11 @@ class AssignmentController extends Controller
      */
     public function store(StoreAssignmentRequest $request): RedirectResponse
     {
-        $assignment = DB::transaction(function (): Assignment {
+        $assignment = DB::transaction(function () use ($request): Assignment {
             return Assignment::create([
-                'user_id' => $this->input('user_id'),
-                'site_id' => $this->input('site_id'),
-                'started_at' => $this->input('started_at'),
+                'user_id' => $request->input('user_id'),
+                'site_id' => $request->input('site_id'),
+                'started_at' => $request->input('started_at'),
                 'ended_at' => null,
             ]);
         });

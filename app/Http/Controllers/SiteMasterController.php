@@ -36,26 +36,26 @@ class SiteMasterController extends Controller
 
     public function store(StoreSiteRequest $request): RedirectResponse
     {
-        $site = DB::transaction(function (): Site {
+        $site = DB::transaction(function () use ($request): Site {
             $site = Site::create([
-                'name' => $this->input('name'),
-                'address' => $this->input('address'),
-                'latitude' => $this->input('latitude'),
-                'longitude' => $this->input('longitude'),
-                'timezone' => $this->input('timezone'),
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'timezone' => $request->input('timezone'),
                 'is_active' => true,
             ]);
 
             $site->connections()->create([
                 'kind' => SiteConnection::PRIMARY,
-                'provider' => $this->input('primary_provider'),
+                'provider' => $request->input('primary_provider'),
                 'is_active' => true,
             ]);
 
-            if (filled($this->input('backup_provider'))) {
+            if (filled($request->input('backup_provider'))) {
                 $site->connections()->create([
                     'kind' => SiteConnection::BACKUP,
-                    'provider' => $this->input('backup_provider'),
+                    'provider' => $request->input('backup_provider'),
                     'is_active' => true,
                 ]);
             }
@@ -66,8 +66,8 @@ class SiteMasterController extends Controller
         $this->recordAudit('site.created', $site->id, [
             'name' => $site->name,
             'timezone' => $site->timezone,
-            'primary_provider' => $this->input('primary_provider'),
-            'backup_provider' => $this->input('backup_provider'),
+            'primary_provider' => $request->input('primary_provider'),
+            'backup_provider' => $request->input('backup_provider'),
         ]);
 
         return redirect()
@@ -87,27 +87,27 @@ class SiteMasterController extends Controller
             'backup_provider' => $site->connections()->where('kind', SiteConnection::BACKUP)->value('provider'),
         ];
 
-        $site = DB::transaction(function () use ($site): Site {
+        $site = DB::transaction(function () use ($request, $site): Site {
             $site->update([
-                'name' => $this->input('name'),
-                'address' => $this->input('address'),
-                'latitude' => $this->input('latitude'),
-                'longitude' => $this->input('longitude'),
-                'timezone' => $this->input('timezone'),
+                'name' => $request->input('name'),
+                'address' => $request->input('address'),
+                'latitude' => $request->input('latitude'),
+                'longitude' => $request->input('longitude'),
+                'timezone' => $request->input('timezone'),
             ]);
 
             $site->primaryConnection()?->update([
-                'provider' => $this->input('primary_provider'),
+                'provider' => $request->input('primary_provider'),
             ]);
 
             $backup = $site->connections()->where('kind', SiteConnection::BACKUP)->first();
 
-            if (filled($this->input('backup_provider'))) {
+            if (filled($request->input('backup_provider'))) {
                 $backup
-                    ? $backup->update(['provider' => $this->input('backup_provider')])
+                    ? $backup->update(['provider' => $request->input('backup_provider')])
                     : $site->connections()->create([
                         'kind' => SiteConnection::BACKUP,
-                        'provider' => $this->input('backup_provider'),
+                        'provider' => $request->input('backup_provider'),
                         'is_active' => true,
                     ]);
             } elseif ($backup) {
@@ -123,8 +123,8 @@ class SiteMasterController extends Controller
             'latitude' => $site->latitude,
             'longitude' => $site->longitude,
             'timezone' => $site->timezone,
-            'primary_provider' => $this->input('primary_provider'),
-            'backup_provider' => $this->input('backup_provider'),
+            'primary_provider' => $request->input('primary_provider'),
+            'backup_provider' => $request->input('backup_provider'),
         ];
 
         $this->recordAudit('site.updated', $site->id, $after, $before);
@@ -140,7 +140,11 @@ class SiteMasterController extends Controller
      */
     public function toggleActive(Site $site): RedirectResponse
     {
-        $this->authorize('update', $site);
+        $actor = auth()->user();
+
+        if ($actor === null || ! $actor->isAdministrator()) {
+            abort(403);
+        }
 
         $site->update(['is_active' => ! $site->is_active]);
 
